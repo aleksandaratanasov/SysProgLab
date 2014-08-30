@@ -1,9 +1,9 @@
 #ifndef _NTERM_
 #define _NTERM_
 
-#define PROGRESS(a) 	std::cout << entry; for (unsigned int i = 0; i < entry; ++i) std::cout << ".  "; std::cout << "Parser: " << a << " via " << info->getLexem() << " at " << line << "/" << column << std::endl;
-#define PROGRESS_T(a) 	for (unsigned int i = 0; i < entry; ++i) std::cout << ".  "; std::cout << "typeCheck: " << a << " / " << info->getLexem() << " at " << line << "/" << column << std::endl;
-#define PROGRESS_M(a) 	std::cout << "MakeCode: " << a << " / " << info->getLexem() << " at " << line << "/" << column << std::endl;
+#define PROGRESS(a) 	std::cout << entry; for (unsigned int i = 0; i < entry; ++i) std::cout << "- "; std::cout << "Parser: " << a << " via " << info->getLexem() << " at [" << line << ":" << column << "]" << std::endl;
+#define PROGRESS_T(a) 	for (unsigned int i = 0; i < entry; ++i) std::cout << "- "; std::cout << "typeCheck: " << a << " / " << info->getLexem() << " at [" << line << ":" << column << "]" << std::endl;
+#define PROGRESS_M(a) 	std::cout << "MakeCode: " << a << " / " << info->getLexem() << " at [" << line << ":" << column << "]" << std::endl;
 #define OUT(a)        //std::cout << a << std::endl;
 #define DOWN            --entry;
 #define UP              ++entry;
@@ -16,8 +16,10 @@
 #include "../Scanner/t_const.h"
 #include "../IO/OutBuffer.h"
 
+// Control types
 #define ERROR_TYPE 			999
-#define EOF 				2
+#define EOF       			2
+// Misc node types
 #define NO_TYPE 			3
 #define ARRAY_TYPE			4
 #define INT_TYPE			5
@@ -36,34 +38,36 @@ class Information;
 class OutBuffer;
 
 class Nterm {
+  protected:
+    // Entry in the parsing tree
+    static unsigned int entry;
+    // Error counters for the final statistic
+    static unsigned int parseErrors;
+    static unsigned int typeErrors;
  
- protected:
-   
-  static unsigned int entry;
-  static unsigned int parseErrors;
-  static unsigned int typeErrors;
- 
-  Scanner* scanner; 
-  unsigned int line,column;
-  long value;
-  Information* info;	
- 
-  void parseError(const char* message);
-  void typeError(const char* message);
+    Scanner* scanner;
+    unsigned int line,column;
+    long value;
+    Information* info;
 
-  void cloneTokenData();
+    // Error handling
+    void parseError(const char* message);
+    void typeError(const char* message);
+
+    // Clones token
+    void cloneTokenData();
+
+    // Used for conditional jumps
+    static int mark;
   
-  static int marke;
-  
- public:
- 
-  unsigned int nTermType;
+  public:
+    unsigned int nTermType;
    
-  Nterm(Scanner* scanner);
-  virtual ~Nterm();
-  
-  virtual void typeCheck() = 0;
-  virtual void makeCode(OutBuffer*) = 0;
+    Nterm(Scanner* scanner);
+    virtual ~Nterm();
+
+    virtual void typeCheck() = 0;
+    virtual void makeCode(OutBuffer*) = 0;
     
 };
 

@@ -205,8 +205,8 @@ void Statement::makeCode(OutBuffer* out) {
       statements->makeCode(out);
       break;
     case 5: // if ...
-      M1 = marke++;
-      M2 = marke++;
+      M1 = mark++;
+      M2 = mark++;
       exp->makeCode(out);
       (*out) << "JIN #M" << M1 << "\n";
       statement1->makeCode(out);
@@ -216,8 +216,8 @@ void Statement::makeCode(OutBuffer* out) {
       (*out) << "#M" << M2 << " NOP\n";
       break;
     case 6: // while // FIXME: Loop problem might be coming from here
-      M1 = marke++;
-      M2 = marke++;
+      M1 = mark++;
+      M2 = mark++;
       (*out) << "#M" << M1 << " NOP\n";
       exp->makeCode(out);
       (*out) << "JIN #M" << M2 << "\n";

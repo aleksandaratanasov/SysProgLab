@@ -68,8 +68,8 @@ void Exp2::typeCheck() {
       index->typeCheck();
       //      if ((info->getType() == TTYPE_CONFIRMED_IDENTIFIER || info->getType() == TTYPE_ARRAY) && index->nTermType == NO_TYPE)
       if ((info->getType() == TTYPE_CONFIRMED_IDENTIFIER) && index->nTermType == NO_TYPE) {
-	nTermType = INT_TYPE;
-	std::cout << "int" << std::endl;
+        nTermType = INT_TYPE;
+        std::cout << "int" << std::endl;
       }
       else if (info->getType() == TTYPE_ARRAY && index->nTermType == ARRAY_TYPE) {
 	nTermType = ARRAY_TYPE;

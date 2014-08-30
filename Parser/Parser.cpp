@@ -2,7 +2,7 @@
 #include "Prog.h"
 #include "../Scanner/Scanner.h"
 #include <iostream>
-#include <time.h>
+#include <time.h> // For measuring the compilation time
 
 Parser::Parser(Scanner* scanner, OutBuffer* out) {
   clock_t start, end;
@@ -13,9 +13,12 @@ Parser::Parser(Scanner* scanner, OutBuffer* out) {
   scanner->nextToken();
   std::cout << "Starting Parser..." << std::endl;
 
+  // Start the parsing process
   Prog* prog = new Prog(scanner, out, parseErrors, typeErrors);
 
+  // Check all types
   prog->typeCheck();
+  // Generate the interpreter code
   prog->makeCode(out);
 
   delete prog;
@@ -23,7 +26,7 @@ Parser::Parser(Scanner* scanner, OutBuffer* out) {
   if (typeErrors == 0 && parseErrors == 0)
     std::cout << "\n  **  Compilation successful!  **\n" << std::endl;
   else
-    std::cout << "\n\n------------------------------\n\n  Compilation failed! You have following errors:\n\n\tparseErrors: " << parseErrors << "\n\ttypeErrors: " << typeErrors << "\n\n------------------------------\n\n" << std::endl;
+    std::cout << "\n\n------------------------------\n\nCompilation failed! You have following errors:\n\n\tParse errors: " << parseErrors << "\n\tType errors: " << typeErrors << "\n\n------------------------------\n\n" << std::endl;
 
   end = clock();
   

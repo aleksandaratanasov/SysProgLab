@@ -21,13 +21,13 @@ void Nterm::cloneTokenData() {
 }
 
 void Nterm::parseError(const char* message) {
-  std::cout << "Parse Error at " << line << "/" << column << " (" << info->getLexem() <<  ") :"  << message  << std::endl;
+  std::cout << "Parse error at [" << line << ":" << column << "] (" << info->getLexem() <<  ") :"  << message  << std::endl;
   nTermType = ERROR_TYPE;
   parseErrors++;
 }
 
 void Nterm::typeError(const char* message) {
-  std::cout << "Type Error at " << line << "/" << column << " (" << info->getLexem() <<  ") :"  << message  << std::endl;
+  std::cout << "Type error at [" << line << ":" << column << "] (" << info->getLexem() <<  ") :"  << message  << std::endl;
   nTermType = ERROR_TYPE;
   typeErrors++;
 }
@@ -35,7 +35,7 @@ void Nterm::typeError(const char* message) {
 
 Nterm::~Nterm() {}
 
-int Nterm::marke = 1;
+int Nterm::mark = 1;
 unsigned int Nterm::entry = 0;
 unsigned int Nterm::parseErrors = 0;
 unsigned int Nterm::typeErrors = 0;

@@ -38,11 +38,11 @@ void Op::makeCode(OutBuffer* out) {
     case TTYPE_EQUALS:
       (*out) << "EQU\n";
       break;
-//    case TTYPE_N_EQUALS:	// FIXME: this should be in EXP2 and Exp since the "!" is handled there (OR NOT?! Think about it)
-//      (*out) << "NOT\n";
-//      break;
+    case TTYPE_N_EQUALS:	// FIXME: this should be in EXP2 and Exp since the "!" is handled there (OR NOT?! Think about it)
+      (*out) << "NOT\n";
+      break;
     case TTYPE_AEQUI:
-      (*out) << "EQU\n"; // combined with NOT
+      (*out) << "EQU\n"; // combined with NOT - FIXME: when debugging <=> we come here without the NOT so it is evaluated as =
       break;
     case TTYPE_AMP:
       (*out) << "AND\n";
