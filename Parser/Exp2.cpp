@@ -72,11 +72,11 @@ void Exp2::typeCheck() {
         std::cout << "int" << std::endl;
       }
       else if (info->getType() == TTYPE_ARRAY && index->nTermType == ARRAY_TYPE) {
-	nTermType = ARRAY_TYPE;
-	std::cout << "ARRAY" << std::endl;
+        nTermType = ARRAY_TYPE;
+        std::cout << "ARRAY" << std::endl;
       }
       else
-	typeError("no primitive type");
+        typeError("no primitive type");
       break;
     case 3: // integer
       nTermType = INT_TYPE;

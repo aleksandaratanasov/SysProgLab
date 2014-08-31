@@ -160,17 +160,17 @@ void Statement::typeCheck() {
       statement1->typeCheck();
       statement2->typeCheck();
       if (exp->nTermType == ERROR_TYPE)
-	nTermType = ERROR_TYPE;
+        nTermType = ERROR_TYPE;
       else
-	nTermType = NO_TYPE;	  
+        nTermType = NO_TYPE;
       break;
     case 6: //while...
       exp->typeCheck();
       statement1->typeCheck();
       if (exp->nTermType == ERROR_TYPE)
-	nTermType = ERROR_TYPE;
+        nTermType = ERROR_TYPE;
       else
-	nTermType = NO_TYPE;	  
+        nTermType = NO_TYPE;
       break;
     default:
       nTermType = ERROR_TYPE;	  

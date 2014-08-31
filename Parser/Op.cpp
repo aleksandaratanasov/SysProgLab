@@ -42,7 +42,7 @@ void Op::makeCode(OutBuffer* out) {
       (*out) << "NOT\n";
       break;
     case TTYPE_AEQUI:
-      (*out) << "EQU\n"; // combined with NOT - FIXME: when debugging <=> we come here without the NOT so it is evaluated as =
+      (*out) << "EQU\nNOT\n"; //FIX: added "NOT\n"; REASON: combined with NOT - FIXME: when debugging <=> we come here without the NOT so it is evaluated as =
       break;
     case TTYPE_AMP:
       (*out) << "AND\n";

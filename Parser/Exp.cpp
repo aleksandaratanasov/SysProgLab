@@ -45,7 +45,7 @@ void Exp::makeCode(OutBuffer* out) {;
   }  else if (op_exp->nTermType == OP_UNEQUAL_TYPE) {
     exp2->makeCode(out);
     op_exp->makeCode(out);
-    (*out) << "NOT\n";	// this handles !
+    (*out) << "NOT\n";	// this handles the ! and the <=> (check if this should be handled like this!) Note: currently there is no OP_AEQU_TYPE!!!
   } else {
     exp2->makeCode(out);
     op_exp->makeCode(out);
