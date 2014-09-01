@@ -1,0 +1,11 @@
+SysProgLab
+==========
+
+Compiler for a very basic programming language - assignment in SysProg lab.
+
+Interpreter requires the libsysprogSS2011.so file to be exported:
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:[path to library]
+
+Run the interpreter via following command:
+java -jar interpreter.jar
+
