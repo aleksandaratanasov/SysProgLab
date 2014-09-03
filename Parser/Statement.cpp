@@ -132,9 +132,8 @@ void Statement::typeCheck() {
       exp->typeCheck();
       index->typeCheck();
       if ((exp->nTermType == INT_TYPE || exp->nTermType == ARRAY_TYPE)  && 
-	((info->getType() == TTYPE_CONFIRMED_IDENTIFIER && index->nTermType == NO_TYPE) || 
-	 (info->getType() == TTYPE_ARRAY && index->nTermType == ARRAY_TYPE)))
-	nTermType = NO_TYPE;
+         ((info->getType() == TTYPE_CONFIRMED_IDENTIFIER && index->nTermType == NO_TYPE) || (info->getType() == TTYPE_ARRAY && index->nTermType == ARRAY_TYPE)))
+        nTermType = NO_TYPE;
       else {
 	typeError("incompatible types. ");
 	std::cout << exp->nTermType << " " << info->getType() << " " << index->nTermType << std::endl;
@@ -192,7 +191,7 @@ void Statement::makeCode(OutBuffer* out) {
       index->makeCode(out);
       (*out) << "STR\n";
       break;
-    case 2: //write
+    case 2: //print
       exp->makeCode(out);
       (*out) << "PRI\n";
       break;
@@ -202,7 +201,7 @@ void Statement::makeCode(OutBuffer* out) {
       (*out) << "STR\n";
       break;
     case 4: //{...}
-      statements->makeCode(out);
+      statements->makeCode(out);  // Problem with infinite while loop occurs when {} are used!
       break;
     case 5: // if ...
       M1 = mark++;
@@ -215,7 +214,7 @@ void Statement::makeCode(OutBuffer* out) {
       statement2->makeCode(out);
       (*out) << "#M" << M2 << " NOP\n";
       break;
-    case 6: // while // FIXME: Loop problem might be coming from here
+    case 6: // while // FIXME: See case 4
       M1 = mark++;
       M2 = mark++;
       (*out) << "#M" << M1 << " NOP\n";
