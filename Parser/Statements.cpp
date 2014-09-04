@@ -31,7 +31,8 @@ void Statements::typeCheck() {
 
 void Statements::makeCode(OutBuffer* out) {
   PROGRESS_M("Statements");
-  (*out) << "NOP\n";
+  (*out) << "NOP\n"; // FIXME: this is only the case when € is encountered. Block code inside conditional sturctures (while/if:else)
+                     // should run generate code after their conditional jumps are written to the interpreter file
 }
 
 Statements::~Statements() {

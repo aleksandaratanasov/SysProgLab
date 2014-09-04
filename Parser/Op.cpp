@@ -30,7 +30,7 @@ void Op::makeCode(OutBuffer* out) {
       (*out) << "DIV\n";
       break;
     case TTYPE_GREATER:
-      (*out) << "\n";
+      (*out) << "LES\nNOT\n"; // FIX: partial fix for greater operator; this is not how it's described in the PDF documentation
       break;
     case TTYPE_LESS:
       (*out) << "LES\n";
