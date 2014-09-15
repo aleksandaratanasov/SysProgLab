@@ -12,6 +12,7 @@ ParserNEW::ParserNEW(Scanner *scanner, OutBuffer *out) {
   std::cout << "Starting parsing..." << std::endl;
 
   ProgNEW *prog = new ProgNEW(scanner, out, parseErrors, typeErrors);
+  delete prog;
 
   end = clock();
   std::cout << "Parsing complete" << std::endl << "Used time: "  << (double)(end-start)/CLOCKS_PER_SEC << " s" << std::endl;
@@ -22,23 +23,48 @@ ParserNEW::~ParserNEW() {
 }
 
 Node::Node(Scanner* scanner) {
-
+  this->scanner = scanner;
+  cloneTokenData();
 }
 
 Node::~Node() {}
 
-int ProgNEW::i = 0;
+int Node::mark = 1;
+unsigned int Node::parseErrors = 0;
+unsigned int Node::typeErrors = 0;
 
-ProgNEW::ProgNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner) {
-  i++;
-  std::cout << "I = " << i << std::endl;
-  decls = new DeclsNEW(scanner, out, pE, tE);
-  delete decls;
-  statements = new StatementsNEW(scanner, out, pE, tE);
-  delete statements;
+void Node::cloneTokenData() {
+  line = scanner->token->getLine();
+  column = scanner->token->getColumn();
+  value = scanner->token->getValue();
+  info = scanner->token->getInformation();
 }
 
-ProgNEW::~ProgNEW() {}
+void Node::parseError(const char* message) {
+  std::cout << "Parse error at [" << line << ":" << column << "] (" << info->getLexem() <<  ") :"  << message  << std::endl;
+  nodeType = ERROR_TYPE;
+  parseErrors++;
+}
+
+void Node::typeError(const char* message) {
+  std::cout << "Type error at [" << line << ":" << column << "] (" << info->getLexem() <<  ") :"  << message  << std::endl;
+  nodeType = ERROR_TYPE;
+  typeErrors++;
+}
+
+ProgNEW::ProgNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner) {
+  decls = new DeclsNEW(scanner, out, pE, tE);
+//  delete decls; // do this in ParserNEW's constructure after typeCheck() and makeCode() have been executed!
+  statements = new StatementsNEW(scanner, out, pE, tE);
+//  delete statements; // do this in ParserNEW's constructure after typeCheck() and makeCode() have been executed!
+  pE = parseErrors;
+  tE = typeErrors;
+}
+
+ProgNEW::~ProgNEW() {
+  delete decls;
+  delete statements;
+}
 
 void ProgNEW::typeCheck() {
 }
@@ -50,14 +76,32 @@ DeclsNEW::DeclsNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(sc
 //  while("int" encountered) {
 //     goto Decl
 //  }
+  decls = new ListT<DeclNEW>();
+
+  while(scanner->token->getInformation()->equals("int")) {
+    scanner->newIdentifier();
+//    DeclNEW *decl = new DeclNEW(scanner, out, pE, tE);
+    decls->append(new DeclNEW(scanner, out, pE, tE));
+    if(scanner->token->getInformation()->getType() == TTYPE_SEMI) {
+      scanner->nextToken();
+      cloneTokenData();
+    }
+    else
+      parseError("Missing ';'");
+  }
 }
 
 DeclsNEW::~DeclsNEW() {
   // delete each element in the ListT
+  delete decls;
 }
 
 void DeclsNEW::typeCheck() {
-
+  ListTElement<DeclNEW>* tmp = decls->first;
+  while (tmp) {
+    tmp->getData()->typeCheck(); // check type of each decl in the list of decls
+    tmp = tmp->getNext();
+  }
 }
 
 void DeclsNEW::makeCode(OutBuffer *out) {
@@ -65,7 +109,13 @@ void DeclsNEW::makeCode(OutBuffer *out) {
 }
 
 DeclNEW::DeclNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner) {
-
+  array = new ArrayNEW(scanner, out, pE, tE);
+  if (scanner->token->getInformation()->getType() == TTYPE_CONFIRMED_IDENTIFIER) {
+    info = scanner->token->getInformation();
+    scanner->nextToken();
+//    cloneTokenData();
+  } else
+    parseError("New identifier expected");
 }
 
 DeclNEW::~DeclNEW() {}
@@ -79,7 +129,24 @@ void DeclNEW::makeCode(OutBuffer *out) {
 }
 
 ArrayNEW::ArrayNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner) {
-
+  if (scanner->token->getInformation()->getType() == TTYPE_S_B_O) {
+    value = -1;
+    scanner->nextToken();
+    if (scanner->token->getInformation()->getType() == TTYPE_INT) {
+      value = scanner->token->getValue();
+      scanner->nextToken();
+      if (scanner->token->getInformation()->getType() == TTYPE_S_B_C) {
+        scanner->newIdentifier();
+        nodeType = ARRAY_TYPE;
+      }
+      else
+        parseError("Missing closing ']'");
+    }
+    else
+      parseError("Integer value expected");
+  }
+  else
+    nodeType = NO_TYPE;
 }
 
 ArrayNEW::~ArrayNEW() {}

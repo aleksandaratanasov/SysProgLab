@@ -52,7 +52,7 @@ class Scanner {
   long value;
 
   InBuffer* inBuffer;
-  ObjectContainer<Information>* IOC;;
+  ObjectContainer<Information>* IOC;
   Symtable* symtab;
 
   void (*state)(Scanner*);

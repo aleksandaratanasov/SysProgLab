@@ -33,7 +33,7 @@ public:
 
 };
 
-template<class type>
+  template<class type>
 
 ObjectContainer<type>* ObjectContainer<type>::last = 0;
 

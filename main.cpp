@@ -12,6 +12,10 @@
 #include "IO/ThreadInBuffer.h"
 #include "IO/InBuffer.h"
 
+//TEST
+#include "Parser/ListT.h"
+#include "Parser/PARSER_NEW.h"
+
 using std::cout;
 using std::endl;
 
@@ -34,7 +38,25 @@ int main(int argc, char **argv) {
 //  OutBuffer* out = new ThreadFileOutBuffer("out.txt");
 
   Scanner* scanner = new Scanner(IOC, inBuf, keywords, 6);
-  Parser* parser = new Parser(scanner, out);
+//  Parser* parser = new Parser(scanner, out);
+
+  // TEST START
+//  int pE, tE;
+//  ListT<Node>* testList = new ListT<Node>();
+//  ProgNEW* pr1 = new ProgNEW(scanner, out, tE, pE);
+//  DeclsNEW* pr2 = new DeclsNEW(scanner, out, tE, pE);
+//  DeclNEW* pr3 = new DeclNEW(scanner, out, tE, pE);
+//  StatementsNEW* pr4 = new StatementsNEW(scanner, out, tE, pE);
+//  testList->append(pr1);
+//  testList->append(pr2);
+//  testList->append(pr3);
+//  testList->append(pr4);
+//  testList->print();
+//  delete testList;
+//  return 1;
+  // TEST END
+
+  ParserNEW *parser = new ParserNEW(scanner, out);
 
   // clean everything
   delete inBuf;

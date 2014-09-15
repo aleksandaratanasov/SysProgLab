@@ -29,11 +29,11 @@
 class Scanner;
 class OutBuffer;
 class Information;
-template<class type>
+template<class T>
 class ObjectContainer;
-template <class type>
+template <class T>
 class ListTElement;
-template<class type>
+template<class T>
 class ListT;
 
 class Node;
@@ -58,7 +58,9 @@ class OpNEW;
 // verification
 class ParserNEW {
 
-    friend class ListT<T>;
+    friend class ListT<Node>;
+    static unsigned int depth_counter; // current nesting depth in the source code based
+                                       // on the number of opened/closed curly brackets
 
     void buildAST(); // builds the abstract syntax tree
     void typeCheck();// calls recursively the typeCheck() for each Node
@@ -83,16 +85,15 @@ class Node {
     long value;
     Information* info;
 
+    // Used for conditional jumps
+    static int mark;
+
     // Error handling
     void parseError(const char* message);
     void typeError(const char* message);
 
     // Clones token
     void cloneTokenData();
-
-    // Used for conditional jumps
-    static int mark;
-
   public:
     unsigned int nodeType;
 
@@ -111,8 +112,6 @@ class ProgNEW : public Node {
  public:
   ProgNEW(Scanner*, OutBuffer*, int&, int&);
   virtual ~ProgNEW();
-
-  static int i; //TODO remove this; used just for testing the ListT
 
   virtual void typeCheck();
   virtual void makeCode(OutBuffer* out);
@@ -156,6 +155,10 @@ class ArrayNEW : public Node {
 
 class StatementsNEW : public Node {
 
+    // NOTE: depthCounter might not be needed after all
+    // 1) create statements and store jump mark
+    // 2) generate list for each statement (repeat storing jump marks for each if/while
+    // 3) after the list generation insert the mark that is stored in the statement
     // when nesting multiple statements (e.g: if(...){ if(...){ ... } }
     // this counter will increase with each "{" token and decrease with
     // each "}" token; top level is depth_counter==0;
@@ -196,7 +199,6 @@ class StatementsNEW : public Node {
     // Each call of makeCode() for an if/while inserts a mark and a conditional jump at the beginning of the statement
     // After we are again on the same level of this statement (we have exited all nested ones)
     // meaning we have closed with using "}", the mark from the jump condition is placed and a NOP is added
-    static unsigned int depth_counter;
     ListT<StatementNEW>* statementList;
 
   public:
@@ -209,7 +211,10 @@ class StatementsNEW : public Node {
 
 class StatementNEW : public Node {
 
-    ListT<StatementsNEW>* statementsList;
+//    ListT<StatementsNEW>* statementsList;
+    int jumpBackMark; // use in a loop to jump back to the loop's condition before the loop's main body
+    int jumpForwardMark;  // used both in if and while to skip main body of conditional structure
+
 
   public:
     StatementNEW(Scanner*, OutBuffer*, int&, int&);

@@ -8,38 +8,65 @@ class ListT;
 
 template<class T>
 class ListTElement {
-    friend class ListT<T>;
+//    friend class ListT<T>;
 
     unsigned long index;
     T* data;  // Prog, Statements, Statement, Decls, Decl etc.
     ListTElement<T>* next;
 
   public:
-    ListTElement<T>();
-    ~ListTElement<T>();
+    ListTElement<T>() : index(0), data(0), next(0) {}
+
+    ~ListTElement<T>() {
+      if(data)
+        delete data;
+    }
+
+    void setIndex(unsigned long index) {
+      this->index = index;
+    }
+
+    unsigned long getIndex() {
+      return index;
+    }
+
+    void setData(T* data) {
+      this->data = data;
+    }
+
+    T* getData() {
+      return data;
+    }
+
+    void setNext(ListTElement<T>* next) {
+      this->next = next;
+    }
+
+    ListTElement<T>* getNext() {
+      return next;
+    }
 };
 
-template<class T>
-ListTElement<T>::ListTElement() : index(0), data(0), next(0) {
-}
+//template<class T>
+//ListTElement<T>::ListTElement() : index(0), data(0), next(0) {
+//}
 
-template<class T>
-ListTElement<T>::~ListTElement() {
-  if(data)
-    delete data;
-}
-
+//template<class T>
+//ListTElement<T>::~ListTElement() {
+//  if(data)
+//    delete data;
+//}
 template <class T>
 class ListT {
-    friend class ListTElement<T>;
+    //friend class ListTElement<T>;
 
     ListTElement<T>* first;
     ListTElement<T>* last;
     unsigned long size;
 
   public:
-    ListT<T>() : first(0), last(0), size(0) {
-    }
+    ListT<T>() : first(0), last(0), size(0) {}
+
     ~ListT<T>() {
       //FIXME not working properly
       while(first)
@@ -49,7 +76,7 @@ class ListT {
     void removeFirst() {
       if (first) {
           ListTElement<T>* el = first;
-          first = first->next; // go to the next element
+          first = first->getNext(); // go to the next element
           if (!first) // no elements left
               last = 0;
           delete el;
@@ -59,13 +86,13 @@ class ListT {
 
     void append(T* data) {
       ListTElement<T>* el = new ListTElement<T>();
-      el->data = data;
-      el->index = size;
+      el->setData(data);
+      el->setIndex(size);
 
       if (!first)
           first = el;
       else
-          last->next = el;
+          last->setNext(el);
       last = el;
       ++size;
     }
@@ -73,9 +100,9 @@ class ListT {
     T* searchFor(unsigned long index) const {
       ListTElement<T>* tmp = first;
       while (tmp) {
-          if (tmp->index == index)
-              return tmp->data;
-          tmp = tmp->next;
+          if (tmp->getIndex() == index)
+              return tmp->getData();
+          tmp = tmp->getNext();
       }
       return 0;
     }
@@ -83,8 +110,8 @@ class ListT {
     void print() {
       ListTElement<T>* tmp = first;
       while (tmp) {
-        std::cout << tmp->index << " ";
-        tmp = tmp->next;
+        std::cout << tmp->getIndex() << " ";
+        tmp = tmp->getNext();
       }
       std::cout << std::endl;
     }

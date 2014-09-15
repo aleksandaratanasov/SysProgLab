@@ -15,15 +15,15 @@ Array::Array(Scanner* scanner, OutBuffer* out):Nterm(scanner) {
       value = scanner->token->getValue();
       scanner->nextToken();
       if (scanner->token->getInformation()->getType() == TTYPE_S_B_C) {
-	scanner->newIdentifier();
-	nTermType = ARRAY_TYPE;
+        scanner->newIdentifier();
+        nTermType = ARRAY_TYPE;
       } else 
-	parseError("Missing closing ']'");
+        parseError("Missing closing ']'");
     } else
       parseError("Integer Value expected");
   } else { 
-    PROGRESS("€ array")
-    nTermType = NO_TYPE;
+      PROGRESS("€ array")
+      nTermType = NO_TYPE;
   }
   DOWN
 }
