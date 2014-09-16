@@ -62,7 +62,8 @@ class ParserNEW {
     static unsigned int depth_counter; // current nesting depth in the source code based
                                        // on the number of opened/closed curly brackets
 
-    void buildAST(); // builds the abstract syntax tree
+    ProgNEW* prog;
+
     void typeCheck();// calls recursively the typeCheck() for each Node
     void makeCode(); // calls recursively the makeCode() for each Node
 

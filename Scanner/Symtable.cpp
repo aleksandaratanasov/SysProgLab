@@ -11,6 +11,10 @@
 
 #include "List.h"
 
+using std::cout;
+using std::endl;
+using std::cerr;
+
 Symtable::Symtable(ObjectContainer<Information>* IOC) {
   maxFill = 50; // initial maximum of entries
   size = SYMTAB_SIZE;
@@ -39,7 +43,7 @@ unsigned int Symtable::createHashcode(char* lexem) {
 inline void Symtable::reorganize() {
   steps += 5;
   int newSize = steps * SYMTAB_SIZE + size;
-  std::cout << steps << std::endl;
+  cout << steps << endl;
   List* oldTable = table;
   table = new List[newSize];
 
@@ -63,7 +67,7 @@ Information* Symtable::insert(char* lexem, int length, int ttype) {
 		NLE->data->initialize(lexem, length, ttype, hashcode);
 		table[hashcode % size].append(NLE);
 		++count;
-		//std::cout << "Count:  " << count << " Lexem " << lexem << std::endl;
+		//cout << "Count:  " << count << " Lexem " << lexem << endl;
 		if ((double) count / size * 100 > maxFill) 
 			reorganize();
 		tmp = NLE->data;
@@ -85,9 +89,9 @@ Information* Symtable::searchFor(char* lexem) {
 }
 /*
 void Symtable::print() {
-	std::cout << "-------------------------------------" << std::endl;
+	cout << "-------------------------------------" << endl;
 	for (unsigned int i = 0; i < size; ++i) {
-		std::cout << "Zelle " << i << "\n";
+		cout << "Zelle " << i << "\n";
 		table[i].print();
 	}
 }

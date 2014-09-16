@@ -15,7 +15,7 @@ class ThreadFileOutBuffer: public OutBuffer {
   // Called as a separate thread for writing data to a file
   friend void *t_ThreadFileOutBuffer(void* m);
 
-  int datei;
+  int file;
   unsigned int buffer_size;
   unsigned int position;
   void* buffer_void;

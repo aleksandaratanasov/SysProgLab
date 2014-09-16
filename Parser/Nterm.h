@@ -1,10 +1,10 @@
 #ifndef _NTERM_
 #define _NTERM_
 
-#define PROGRESS(a) 	std::cout << entry; for (unsigned int i = 0; i < entry; ++i) std::cout << "- "; std::cout << "Parser: " << a << " via " << info->getLexem() << " at [" << line << ":" << column << "]" << std::endl;
-#define PROGRESS_T(a) 	for (unsigned int i = 0; i < entry; ++i) std::cout << "- "; std::cout << "typeCheck: " << a << " / " << info->getLexem() << " at [" << line << ":" << column << "]" << std::endl;
-#define PROGRESS_M(a) 	std::cout << "MakeCode: " << a << " / " << info->getLexem() << " at [" << line << ":" << column << "]" << std::endl;
-#define OUT(a)        //std::cout << a << std::endl;
+#define PROGRESS(a) 	cout << entry; for (unsigned int i = 0; i < entry; ++i) cout << "- "; cout << "Parser: " << a << " via " << info->getLexem() << " at [" << line << ":" << column << "]" << endl;
+#define PROGRESS_T(a) 	for (unsigned int i = 0; i < entry; ++i) cout << "- "; cout << "typeCheck: " << a << " / " << info->getLexem() << " at [" << line << ":" << column << "]" << endl;
+#define PROGRESS_M(a) 	cout << "MakeCode: " << a << " / " << info->getLexem() << " at [" << line << ":" << column << "]" << endl;
+#define OUT(a)        //cout << a << endl;
 #define DOWN            --entry;
 #define UP              ++entry;
 

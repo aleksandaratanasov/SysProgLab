@@ -11,6 +11,10 @@
 #define IN_BUFFER_SIZE 16
 #define NUMBER_OF_OUT_BUFFERS 4
 
+using std::cout;
+using std::endl;
+using std::cerr;
+
 class BufferMonitor;
 
 void *t_ThreadInBuffer(void* m)  {
@@ -20,9 +24,9 @@ void *t_ThreadInBuffer(void* m)  {
   while(true) {
     t_actual->startWrite();
     {
-      unsigned int num = read(t_master->datei, t_actual->buffer_void, t_master->buffer_size);
+      unsigned int num = read(t_master->file, t_actual->buffer_void, t_master->buffer_size);
       if (num < 0)
-    std::cerr << "Error: unable to read " << t_master->position  << " bytes from file" << std::endl  << "Error code: " << num << std::endl;
+    cerr << "Error: unable to read " << t_master->position  << " bytes from file" << endl  << "Error code: " << num << endl;
       for ( ; num < t_master->buffer_size; ++num)
 	t_actual->buffer_char[num] = '\0';
     }
@@ -40,9 +44,9 @@ ThreadInBuffer::ThreadInBuffer(const char* path) {
     buffers[i].init(&buffers[(i+1)%NUMBER_OF_OUT_BUFFERS],buffer_size);
   }
 
-  datei = open(path, O_SYNC, O_DIRECT, O_RDONLY);
-  if (datei <= 0) {
-    std::cerr << "Error: unable to find file \"" << path << "\" or unable to read from it";
+  file = open(path, O_SYNC, O_DIRECT, O_RDONLY);
+  if (file <= 0) {
+    cerr << "Error: unable to find file \"" << path << "\" or unable to read from it";
     exit(101);
   }
 
@@ -56,7 +60,7 @@ ThreadInBuffer::ThreadInBuffer(const char* path) {
 }
 
 ThreadInBuffer::~ThreadInBuffer() {
-  close(datei);
+  close(file);
   pthread_cancel(theThread);
   delete[] buffers;
 }
@@ -95,7 +99,7 @@ unsigned int ThreadInBuffer::back(unsigned int i) {
   for (pos = 0; pos < i; ++pos) {
     if (position == 0) {
       if (buffer == former) {
-    std::cerr << "Error: buffer underflow";
+    cerr << "Error: buffer underflow";
 	return 0;
       } else {
 	buffer = former;

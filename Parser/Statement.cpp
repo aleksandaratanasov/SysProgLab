@@ -10,6 +10,9 @@
 #include "../Scanner/Scanner.h"
 #include "../IO/OutBuffer.h"
 
+using std::cout;
+using std::endl;
+using std::cerr;
 
 Statement::Statement(Scanner* scanner, OutBuffer* out):Nterm(scanner) {
   UP
@@ -70,9 +73,9 @@ Statement::Statement(Scanner* scanner, OutBuffer* out):Nterm(scanner) {
   else if (scanner->token->getInformation()->getType() == TTYPE_C_B_O) { // FIXME: Somewhere here is the culprit
     PROGRESS("statement->statements");
     scanner->nextToken();
-    //std::cout << " ============================================================================= nextToken() = \"" << scanner->token->getInformation()->getLexem() << "\"" << std::endl;
+    //cout << " ============================================================================= nextToken() = \"" << scanner->token->getInformation()->getLexem() << "\"" << endl;
     statements = new Statements(scanner, out);
-    //std::cout << " ============================================================================= nextToken():AFTER STATEMENTS = \"" << scanner->token->getInformation()->getLexem() << "\"" << std::endl;
+    //cout << " ============================================================================= nextToken():AFTER STATEMENTS = \"" << scanner->token->getInformation()->getLexem() << "\"" << endl;
     if (scanner->token->getInformation()->getType() == TTYPE_C_B_C) {
       scanner->nextToken();
       type = 4;
@@ -136,7 +139,7 @@ void Statement::typeCheck() {
         nTermType = NO_TYPE;
       else {
         typeError("incompatible types. ");
-        std::cout << exp->nTermType << " " << info->getType() << " " << index->nTermType << std::endl;
+        cout << exp->nTermType << " " << info->getType() << " " << index->nTermType << endl;
       }
       break;
     case 2: // print (EXP)

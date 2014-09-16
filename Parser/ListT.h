@@ -73,6 +73,22 @@ class ListT {
         removeFirst();
     }
 
+    void setFirst(ListTElement<T>* first) {
+      this->first = first;
+    }
+
+    ListTElement<T>* getFirst() {
+      return first;
+    }
+
+    void setLast(ListTElement<T>* last) {
+      this->last = last;
+    }
+
+    ListTElement<T>* getLast() {
+      return last;
+    }
+
     void removeFirst() {
       if (first) {
           ListTElement<T>* el = first;

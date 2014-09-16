@@ -2,7 +2,7 @@
 #define SCANNER_H_
 
 // TODO: no longer needed; used to print a token once it is recognized as such by the scanner
-#define TOKEN //std::cout << "Token: " << lexem << std::endl;
+#define TOKEN //cout << "Token: " << lexem << endl;
 
 class Symtable;
 class Token;

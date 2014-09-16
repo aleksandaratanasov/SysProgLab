@@ -3,23 +3,31 @@
 #include <iostream>
 #include <time.h> // For measuring the compilation time
 
+using std::cout;
+using std::endl;
+using std::cerr;
+
 ParserNEW::ParserNEW(Scanner *scanner, OutBuffer *out) {
   clock_t start, end;
   int typeErrors, parseErrors;
   start = clock();
 
   scanner->nextToken();
-  std::cout << "Starting parsing..." << std::endl;
+  cout << "Starting parsing..." << endl;
 
-  ProgNEW *prog = new ProgNEW(scanner, out, parseErrors, typeErrors);
-  delete prog;
+  prog = new ProgNEW(scanner, out, parseErrors, typeErrors);
+  prog->typeCheck();
+  prog->makeCode(out);
 
   end = clock();
-  std::cout << "Parsing complete" << std::endl << "Used time: "  << (double)(end-start)/CLOCKS_PER_SEC << " s" << std::endl;
+  if(!typeErrors && !parseErrors)
+    cout << "Parsing complete" << endl << "Used time: "  << (double)(end-start)/CLOCKS_PER_SEC << " s" << endl;
+  else
+    cout << "Parsing failed" << endl << "Used time: "  << (double)(end-start)/CLOCKS_PER_SEC << " s" << endl;
 }
 
 ParserNEW::~ParserNEW() {
-  //TODO - delete everything the parser has dumped into memory
+  delete prog;
 }
 
 Node::Node(Scanner* scanner) {
@@ -41,13 +49,13 @@ void Node::cloneTokenData() {
 }
 
 void Node::parseError(const char* message) {
-  std::cout << "Parse error at [" << line << ":" << column << "] (" << info->getLexem() <<  ") :"  << message  << std::endl;
+  cout << "Parse error at [" << line << ":" << column << "] (" << info->getLexem() <<  ") :"  << message  << endl;
   nodeType = ERROR_TYPE;
   parseErrors++;
 }
 
 void Node::typeError(const char* message) {
-  std::cout << "Type error at [" << line << ":" << column << "] (" << info->getLexem() <<  ") :"  << message  << std::endl;
+  cout << "Type error at [" << line << ":" << column << "] (" << info->getLexem() <<  ") :"  << message  << endl;
   nodeType = ERROR_TYPE;
   typeErrors++;
 }
@@ -67,20 +75,21 @@ ProgNEW::~ProgNEW() {
 }
 
 void ProgNEW::typeCheck() {
+  decls->typeCheck();
+  statements->typeCheck();
 }
 
 void ProgNEW::makeCode(OutBuffer *out) {
+  decls->makeCode(out);
+  statements->makeCode(out);
+  (*out) << "STP\n";
 }
 
 DeclsNEW::DeclsNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner) {
-//  while("int" encountered) {
-//     goto Decl
-//  }
   decls = new ListT<DeclNEW>();
 
   while(scanner->token->getInformation()->equals("int")) {
     scanner->newIdentifier();
-//    DeclNEW *decl = new DeclNEW(scanner, out, pE, tE);
     decls->append(new DeclNEW(scanner, out, pE, tE));
     if(scanner->token->getInformation()->getType() == TTYPE_SEMI) {
       scanner->nextToken();
@@ -92,12 +101,11 @@ DeclsNEW::DeclsNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(sc
 }
 
 DeclsNEW::~DeclsNEW() {
-  // delete each element in the ListT
   delete decls;
 }
 
 void DeclsNEW::typeCheck() {
-  ListTElement<DeclNEW>* tmp = decls->first;
+  ListTElement<DeclNEW>* tmp = decls->getFirst();
   while (tmp) {
     tmp->getData()->typeCheck(); // check type of each decl in the list of decls
     tmp = tmp->getNext();
@@ -105,7 +113,11 @@ void DeclsNEW::typeCheck() {
 }
 
 void DeclsNEW::makeCode(OutBuffer *out) {
-
+  ListTElement<DeclNEW>* tmp = decls->getFirst();
+  while (tmp) {
+    tmp->getData()->makeCode(out); // make code for each decl in the list of decls
+    tmp = tmp->getNext();
+  }
 }
 
 DeclNEW::DeclNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner) {
@@ -118,14 +130,27 @@ DeclNEW::DeclNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scan
     parseError("New identifier expected");
 }
 
-DeclNEW::~DeclNEW() {}
+DeclNEW::~DeclNEW() {
+  delete array;
+}
 
 void DeclNEW::typeCheck() {
-
+  array->typeCheck();
+  if (scanner->token->getInformation()->getType() == TTYPE_EXISTING_IDENTIFIER) {
+    typeError("identifer already defined");
+    nodeType = ERROR_TYPE;
+  } else if (array->nodeType == ERROR_TYPE) {
+    nodeType = ERROR_TYPE;
+  } else {
+    nodeType = NO_TYPE;
+    if (array->nodeType == ARRAY_TYPE)
+      info->toArray();
+  }
 }
 
 void DeclNEW::makeCode(OutBuffer *out) {
-
+  (*out) << "DS $" << info->getLexem();
+  array->makeCode(out);
 }
 
 ArrayNEW::ArrayNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner) {
@@ -146,17 +171,23 @@ ArrayNEW::ArrayNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(sc
       parseError("Integer value expected");
   }
   else
-    nodeType = NO_TYPE;
+    nodeType = NO_TYPE; // in case of a non-array variable
 }
 
 ArrayNEW::~ArrayNEW() {}
 
 void ArrayNEW::typeCheck() {
-
+  if(nodeType == ARRAY_TYPE && value < 1) {
+    typeError("No valid dimension");
+    nodeType = ERROR_TYPE;
+  }
 }
 
 void ArrayNEW::makeCode(OutBuffer *out) {
-
+  if (nodeType == ARRAY_TYPE)
+    (*out) << " " << value << "\n";
+  else
+    (*out) << " " << 1 << "\n";
 }
 
 IndexNEW::IndexNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner) {

@@ -9,6 +9,9 @@
 #include "../Scanner/Scanner.h"
 #include "../IO/OutBuffer.h"
 
+using std::cout;
+using std::endl;
+using std::cerr;
 
 Exp2::Exp2(Scanner* scanner, OutBuffer* out):Nterm(scanner) {
   UP
@@ -45,7 +48,7 @@ Exp2::Exp2(Scanner* scanner, OutBuffer* out):Nterm(scanner) {
   }
   else if (scanner->token->getInformation()->getType() == TTYPE_N_EQUALS) { // FIXME: was TTYPE_EXCL_M
     type = 5;
-    std::cout << "TYPECHECK() -- NOT EQUALS TOKEN" << std::endl;
+    cout << "TYPECHECK() -- NOT EQUALS TOKEN" << endl;
     PROGRESS("exp2->exp2");
     scanner->nextToken();
     exp2 = new Exp2(scanner, out);
@@ -69,18 +72,18 @@ void Exp2::typeCheck() {
       //      if ((info->getType() == TTYPE_CONFIRMED_IDENTIFIER || info->getType() == TTYPE_ARRAY) && index->nTermType == NO_TYPE)
       if ((info->getType() == TTYPE_CONFIRMED_IDENTIFIER) && index->nTermType == NO_TYPE) {
         nTermType = INT_TYPE;
-        std::cout << "int" << std::endl;
+        cout << "int" << endl;
       }
       else if (info->getType() == TTYPE_ARRAY && index->nTermType == ARRAY_TYPE) {
         nTermType = ARRAY_TYPE;
-        std::cout << "ARRAY" << std::endl;
+        cout << "ARRAY" << endl;
       }
       else
         typeError("no primitive type");
       break;
     case 3: // integer
       nTermType = INT_TYPE;
-      std::cout << "int" << std::endl;
+      cout << "int" << endl;
       break;
     case 4: //- Exp2
       exp2->typeCheck();

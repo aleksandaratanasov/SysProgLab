@@ -4,6 +4,10 @@
 #include <iostream>
 #include <time.h> // For measuring the compilation time
 
+using std::cout;
+using std::endl;
+using std::cerr;
+
 Parser::Parser(Scanner* scanner, OutBuffer* out) {
   clock_t start, end;
   int typeErrors, parseErrors;
@@ -11,7 +15,7 @@ Parser::Parser(Scanner* scanner, OutBuffer* out) {
   start = clock();
   
   scanner->nextToken();
-  std::cout << "Starting Parser..." << std::endl;
+  cout << "Starting Parser..." << endl;
 
   // Start the parsing process
   Prog* prog = new Prog(scanner, out, parseErrors, typeErrors);
@@ -24,13 +28,13 @@ Parser::Parser(Scanner* scanner, OutBuffer* out) {
   delete prog;
 
   if (typeErrors == 0 && parseErrors == 0)
-    std::cout << "\n  **  Compilation successful!  **\n" << std::endl;
+    cout << "\n  **  Compilation successful!  **\n" << endl;
   else
-    std::cout << "\n\n------------------------------\n\nCompilation failed! You have following errors:\n\n\tParse errors: " << parseErrors << "\n\tType errors: " << typeErrors << "\n\n------------------------------\n\n" << std::endl;
+    cout << "\n\n------------------------------\n\nCompilation failed! You have following errors:\n\n\tParse errors: " << parseErrors << "\n\tType errors: " << typeErrors << "\n\n------------------------------\n\n" << endl;
 
   end = clock();
   
-  std::cout << "End Parser" << std::endl << "Used time: " << (double)(end-start)/CLOCKS_PER_SEC << " seconds" << std::endl;
+  cout << "End Parser" << endl << "Used time: " << (double)(end-start)/CLOCKS_PER_SEC << " seconds" << endl;
 }
 
 Parser::~Parser() {

@@ -7,6 +7,9 @@
 #include "../Scanner/Information.h"
 #include "../IO/OutBuffer.h"
 
+using std::cout;
+using std::endl;
+using std::cerr;
 
 Nterm::Nterm(Scanner* scanner) {
   this->scanner = scanner;
@@ -21,13 +24,13 @@ void Nterm::cloneTokenData() {
 }
 
 void Nterm::parseError(const char* message) {
-  std::cout << "Parse error at [" << line << ":" << column << "] (" << info->getLexem() <<  ") :"  << message  << std::endl;
+  cout << "Parse error at [" << line << ":" << column << "] (" << info->getLexem() <<  ") :"  << message  << endl;
   nTermType = ERROR_TYPE;
   parseErrors++;
 }
 
 void Nterm::typeError(const char* message) {
-  std::cout << "Type error at [" << line << ":" << column << "] (" << info->getLexem() <<  ") :"  << message  << std::endl;
+  cout << "Type error at [" << line << ":" << column << "] (" << info->getLexem() <<  ") :"  << message  << endl;
   nTermType = ERROR_TYPE;
   typeErrors++;
 }

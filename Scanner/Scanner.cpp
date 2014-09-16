@@ -1,6 +1,6 @@
 #include "Scanner.h"
 
-#define LEXEM_LENGTH 1024
+#define LEXEM_LENGTH 512
 
 #include "Symtable.h"
 #include "../Container/ObjectContainer.h"
@@ -19,6 +19,7 @@
 
 using std::cout;
 using std::endl;
+using std::cerr;
 
 void scanner_State_Start(Scanner*);
 void scanner_State_Aequi_1(Scanner*);

@@ -1,6 +1,10 @@
 #include "ConsoleOutBuffer.h"
 #include <iostream>
 
+using std::cout;
+using std::endl;
+using std::cerr;
+
 ConsoleOutBuffer::ConsoleOutBuffer() {
 }
 
@@ -8,9 +12,9 @@ ConsoleOutBuffer::~ConsoleOutBuffer() {
 }
 
 void ConsoleOutBuffer::flush() {
- std::cout << std::endl;
+ cout << endl;
 }
 
 void ConsoleOutBuffer::outBufferWrite(char* out) {
-	std::cout << out;
+	cout << out;
 }

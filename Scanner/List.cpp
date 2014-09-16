@@ -58,7 +58,7 @@ Information* List::searchFor(char* key) const {
 void List::print() {
 	ListElement* tmp = first;
 	while (tmp != 0) {
-		std::cout << "\t" << tmp->data << " (" << tmp->data->getLexem()
+		cout << "\t" << tmp->data << " (" << tmp->data->getLexem()
 				<< ")  Hashcode: " << tmp->data->getHashCode() << "\n";
 		tmp = tmp->next;
 	}

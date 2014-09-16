@@ -13,7 +13,7 @@ protected:
 
   unsigned int buffer_size;
 
-  unsigned int datei;
+  unsigned int file;
 
 public:
 

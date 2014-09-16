@@ -18,6 +18,7 @@
 
 using std::cout;
 using std::endl;
+using std::cerr;
 
 int main(int argc, char **argv) {
   if (argc < 3) {

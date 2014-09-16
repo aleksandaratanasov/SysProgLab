@@ -9,6 +9,9 @@
 #include "../Scanner/Scanner.h"
 #include "../IO/OutBuffer.h"
 
+using std::cout;
+using std::endl;
+using std::cerr;
 
 Exp::Exp(Scanner* scanner, OutBuffer* out):Nterm(scanner) {
   UP
@@ -27,7 +30,7 @@ void Exp::typeCheck() {
   if (op_exp->nTermType == NO_TYPE) 
     nTermType = exp2->nTermType;
   else if (exp2->nTermType != op_exp->nTermType) {
-    std::cout << exp2->nTermType << " " << op_exp->nTermType << std::endl;
+    cout << exp2->nTermType << " " << op_exp->nTermType << endl;
     nTermType = ERROR_TYPE; }
   else 
     nTermType = exp2->nTermType;  

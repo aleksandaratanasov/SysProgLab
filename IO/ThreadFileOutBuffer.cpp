@@ -14,7 +14,8 @@
 #define BUFFER_SIZE 1
 
 using std::cout;
-
+using std::endl;
+using std::cerr;
 
 void *t_ThreadFileOutBuffer(void* m)  {
   ThreadFileOutBuffer* t_master = (ThreadFileOutBuffer*)m;
@@ -23,9 +24,9 @@ void *t_ThreadFileOutBuffer(void* m)  {
   while(true) {
     t_actual->startRead();
     {
-      int num = write(t_master->datei, t_actual->buffer_void, t_master->buffer_size);
+      int num = write(t_master->file, t_actual->buffer_void, t_master->buffer_size);
       if (num < 0)
-    std::cerr << "Error: unable to write " << t_master->position  << " bytes to file" << std::endl  << "Error code: " << num << std::endl;
+    cerr << "Error: unable to write " << t_master->position  << " bytes to file" << endl  << "Error code: " << num << endl;
       if (t_actual->lastBlock)
 	pthread_exit(0);
     }
@@ -45,9 +46,9 @@ ThreadFileOutBuffer::ThreadFileOutBuffer(const char* path) {
   actual->startWrite();
   position = 0;
 
-  datei = open(path, O_DIRECT | O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-  if (datei < 0)
-    std::cerr << "Error: unable to open file \"" << path << "\". No data will be written" << std::endl;
+  file = open(path, O_DIRECT | O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+  if (file < 0)
+    cerr << "Error: unable to open file \"" << path << "\". No data will be written" << endl;
 
   pthread_create(&theThread, 0, t_ThreadFileOutBuffer, (void *)this);
 }
@@ -58,7 +59,7 @@ ThreadFileOutBuffer::~ThreadFileOutBuffer() {
   actual->lastBlock = true;
   file_write();
   pthread_join(theThread,0);
-  close(datei);
+  close(file);
   delete[] buffers;
 }
 
