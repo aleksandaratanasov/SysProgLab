@@ -4,6 +4,10 @@
 #include "../Scanner/t_const.h"
 #include "Nterm.h"
 
+using std::cout;
+using std::endl;
+using std::cerr;
+
 Statements::Statements(Scanner* scanner, OutBuffer* out):Nterm(scanner) {
   UP
   while (scanner->token->getInformation()->getType() != TTYPE_FILE_END && !scanner->token->getInformation()->equals("}") &&  nTermType != ERROR_TYPE) {
@@ -31,8 +35,6 @@ void Statements::typeCheck() {
 
 void Statements::makeCode(OutBuffer* out) {
   PROGRESS_M("Statements");
-  statement->makeCode(out);
-  delete statement;
   (*out) << "NOP\n"; // FIXME: this is only the case when € is encountered. Block code inside conditional sturctures (while/if:else)
                      // should run generate code after their conditional jumps are written to the interpreter file
 }

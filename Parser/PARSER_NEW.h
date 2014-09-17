@@ -16,15 +16,15 @@
 #define NO_TYPE 			3
 #define ARRAY_TYPE			4
 #define INT_TYPE			5
-#define OP_PLUS_TYPE		101
-#define OP_MINUS_TYPE		102
-#define OP_MULT_TYPE		103
-#define OP_DIV_TYPE			104
-#define OP_LESS_TYPE		105
-#define OP_GREAT_TYPE		106
-#define OP_EQUAL_TYPE		107
-#define OP_NOT_TYPE 		108
-#define OP_AND_TYPE			109
+#define OP_PLUS_TYPE		101 // +
+#define OP_MINUS_TYPE		102 // -
+#define OP_MULT_TYPE		103 // *
+#define OP_DIV_TYPE			104 // /
+#define OP_LESS_TYPE		105 // <
+#define OP_GREATER_TYPE		106 // >
+#define OP_EQUAL_TYPE		107 // =
+#define OP_NOT_TYPE 		108 // !
+#define OP_AND_TYPE			109 // &
 
 class Scanner;
 class OutBuffer;
@@ -156,51 +156,37 @@ class ArrayNEW : public Node {
 
 class StatementsNEW : public Node {
 
-    // NOTE: depthCounter might not be needed after all
-    // 1) create statements and store jump mark
-    // 2) generate list for each statement (repeat storing jump marks for each if/while
-    // 3) after the list generation insert the mark that is stored in the statement
-    // when nesting multiple statements (e.g: if(...){ if(...){ ... } }
-    // this counter will increase with each "{" token and decrease with
-    // each "}" token; top level is depth_counter==0;
-    // Each statements block will be stored in a ListT
-    // - top level statement is at index 0
-    // - each new nested statement is added to the list
-    //
-    // Example:
-    //    if(){         // A
-    //      while() {   // B
-    //        if() {    // C
-    //        }
-    //        else {    // D
-    //        }
-    //      }
-    //
-    //      if() {      // E
-    //      }
-    //    }
-    //    else {        // F
-    //    }
-    //
-    //  *statements
-    //      |
-    //      |-------statement[if:A]--{statements
-    //      |                             |
-    //      |                             |-------statement[while:B]--{statements
-    //      |                             |                               |
-    //      |                             |                               |----statement[if:C]--{statements[NULL]}
-    //      |                             |                               |
-    //      |                             |                               |----statement[else:D]--{statements[NULL]}}
-    //      |                             |
-    //      |                             |-------statement[if:E]--{statements[NULL]}}
-    //      |
-    //      |------statement[else:F]--{statements[NULL]}
-    //
-    // This is used in order to invoke makeCode() properly
-    // Each call of makeCode() for an if/while inserts a mark and a conditional jump at the beginning of the statement
-    // After we are again on the same level of this statement (we have exited all nested ones)
-    // meaning we have closed with using "}", the mark from the jump condition is placed and a NOP is added
-    ListT<StatementNEW>* statementList;
+    // Each top level statement (top leve = not inside a {} block) is stored in
+    // a list here. Upon calling makeCode() each list-element's makeCode() is
+    // called. Each element contains another statementList (see StatementNEW).
+    //  - in case of a single statement (e.g. "print(a);") that sublist stores a
+    // single element that represents that statement;
+    //  - in case of a block statement (e.g. if(...){BLOCK_OF_STATEMENTS}) that
+    // sublist contains all top level statements in that block (here top level is
+    // the top most level inside the nested block of statements) and so on.
+    /*
+     *  top level
+     *  @-----|
+     *        |----print(a);
+     *        |----if(a = 10){ ... } else { ... }
+     *        |----print(a);
+     *
+     *  secondary level
+     *  @-----|
+     *        |----print(a);
+     *        |----if(a = 10)
+     *        |         |
+     *        |         |----@----|
+     *        |         |         |-----a = a + 1;
+     *        |         |         |-----while(b < 10) { ... }
+     *        |         |
+     *        |         |----else
+     *        |                |
+     *        |                |-----a = 99;
+     *        |
+     *        |----print(a);
+     */
+    ListT<StatementNEW>* statements;
 
   public:
     StatementsNEW(Scanner*, OutBuffer*, int&, int&);
@@ -212,10 +198,12 @@ class StatementsNEW : public Node {
 
 class StatementNEW : public Node {
 
-//    ListT<StatementsNEW>* statementsList;
     int jumpBackMark; // use in a loop to jump back to the loop's condition before the loop's main body
     int jumpForwardMark;  // used both in if and while to skip main body of conditional structure
 
+    StatementNEW* statement1;
+    StatementNEW* statement2;
+    ListT<StatementNEW>* statements;
 
   public:
     StatementNEW(Scanner*, OutBuffer*, int&, int&);
@@ -257,6 +245,9 @@ class IndexNEW : public Node {
 };
 
 class Op_expNEW : public Node {
+    OpNEW* op;
+    ExpNEW* exp;
+
   public:
     Op_expNEW(Scanner*, OutBuffer*, int&, int&);
     virtual ~Op_expNEW();

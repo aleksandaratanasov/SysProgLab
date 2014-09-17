@@ -12,6 +12,9 @@ ParserNEW::ParserNEW(Scanner *scanner, OutBuffer *out) {
   int typeErrors, parseErrors;
   start = clock();
 
+//  ListTChain<StatementNEW>* ltc = new ListTChain<StatementNEW>();
+//  delete ltc;
+
   scanner->nextToken();
   cout << "Starting parsing..." << endl;
 
@@ -205,11 +208,27 @@ void IndexNEW::makeCode(OutBuffer *out) {
 }
 
 StatementsNEW::StatementsNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner) {
+  if(!statements)
+    statements = new ListT<StatementNEW>();
 
+  while (scanner->token->getInformation()->getType() != TTYPE_FILE_END && nodeType != ERROR_TYPE) {
+    statements->append(new StatementNEW(scanner, out, pE, tE));
+
+    if (scanner->token->getInformation()->getType() == TTYPE_SEMI) {
+      scanner->nextToken();
+      cloneTokenData();
+//      statement->typeCheck();
+//      statement->makeCode(out);
+//      delete statement;
+    } else
+        parseError("Missing ';'");
+  }
 }
 
 StatementsNEW::~StatementsNEW() {
   // delete each element in the ListT
+  if(statements->getSize())
+    delete statements;
 }
 
 void StatementsNEW::typeCheck() {
@@ -220,11 +239,17 @@ void StatementsNEW::makeCode(OutBuffer *out) {
 
 }
 
-StatementNEW::StatementNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner) {
-
+StatementNEW::StatementNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner), jumpBackMark(0), jumpForwardMark(0) {
 }
 
-StatementNEW::~StatementNEW() {}
+StatementNEW::~StatementNEW() {
+  if(!statement1)
+    delete statement1;
+  if(!statement2)
+    delete statement2;
+  if(statements->getSize())
+    delete statements;
+}
 
 void StatementNEW::typeCheck() {
 
@@ -266,10 +291,21 @@ Op_expNEW::Op_expNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(
 
 }
 
-Op_expNEW::~Op_expNEW() {}
+Op_expNEW::~Op_expNEW() {
+  if (!op)
+    delete op;
+  if (!exp)
+    delete exp;
+}
 
 void Op_expNEW::typeCheck() {
-
+  if (op != 0) {
+    op->typeCheck();
+    exp->typeCheck();
+    nodeType = exp->nodeType;
+  }
+  else
+    nodeType = NO_TYPE;
 }
 
 void Op_expNEW::makeCode(OutBuffer *out) {
@@ -283,9 +319,42 @@ OpNEW::OpNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner)
 OpNEW::~OpNEW() {}
 
 void OpNEW::typeCheck() {
-
+  nodeType = info->getType();
 }
 
 void OpNEW::makeCode(OutBuffer *out) {
-
+  switch (info->getType()) {
+    case TTYPE_PLUS:
+      (*out) << "ADD\n";
+      break;
+    case TTYPE_MINUS:
+      (*out) << "SUB\n";
+      break;
+    case TTYPE_MULT:
+      (*out) << "MUL\n";
+      break;
+    case TTYPE_DIV:
+      (*out) << "DIV\n";
+      break;
+    case TTYPE_GREATER:
+      cout << "> SIGN" << endl;
+//      (*out) << "LES\nNOT\n"; // FIX: partial fix for greater operator; this is not how it's described in the PDF documentation
+      break;
+    case TTYPE_LESS:
+      (*out) << "LES\n";
+      break;
+    case TTYPE_EQUALS:
+      (*out) << "EQU\n";
+      break;
+    case TTYPE_N_EQUALS:	// FIXME: this should be in EXP2 and Exp since the "!" is handled there (OR NOT?! Think about it)
+      (*out) << "NOT\n";
+      break;
+    case TTYPE_AEQUI:
+      cout << "<=> SIGN" << endl;
+      //(*out) << "EQU\nNOT\n"; //FIX: added "NOT\n"; REASON: combined with NOT - FIXME: when debugging <=> we come here without the NOT so it is evaluated as =
+      break;
+    case TTYPE_AMP:
+      (*out) << "AND\n";
+      break;
+  }
 }
