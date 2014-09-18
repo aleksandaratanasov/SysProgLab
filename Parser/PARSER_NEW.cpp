@@ -140,6 +140,7 @@ DeclNEW::~DeclNEW() {
 
 void DeclNEW::typeCheck() {
   array->typeCheck();
+
   if (scanner->token->getInformation()->getType() == TTYPE_EXISTING_IDENTIFIER) {
     typeError("identifer already defined");
     nodeType = ERROR_TYPE;
@@ -163,9 +164,11 @@ ArrayNEW::ArrayNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(sc
   if (scanner->token->getInformation()->getType() == TTYPE_S_B_O) {
     value = -1;
     scanner->nextToken();
+
     if (scanner->token->getInformation()->getType() == TTYPE_INT) {
       value = scanner->token->getValue();
       scanner->nextToken();
+
       if (scanner->token->getInformation()->getType() == TTYPE_S_B_C) {
         scanner->newIdentifier();
         nodeType = ARRAY_TYPE;
@@ -196,18 +199,16 @@ void ArrayNEW::makeCode(OutBuffer *out) {
     (*out) << " " << 1 << "\n";
 }
 
-IndexNEW::IndexNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner) {
-  exp = 0;
+IndexNEW::IndexNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner), exp(0) {
   if (scanner->token->getInformation()->getType() == TTYPE_S_B_O) {
     scanner->nextToken();
     exp = new ExpNEW(scanner, out, pE, tE);
+
     if (scanner->token->getInformation()->getType() == TTYPE_S_B_C)
-    scanner->nextToken();
+      scanner->nextToken();
     else
       parseError("Missing closing ']'");
   }
-  else
-    exp = 0;
 }
 
 IndexNEW::~IndexNEW() {}
@@ -229,7 +230,8 @@ StatementsNEW::StatementsNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE)
     if (scanner->token->getInformation()->getType() == TTYPE_SEMI) {
       scanner->nextToken();
       cloneTokenData();
-    } else
+    }
+    else
         parseError("Missing ';'");
   }
 }
@@ -248,13 +250,11 @@ void StatementsNEW::makeCode(OutBuffer *out) {
 
 }
 
-StatementNEW::StatementNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner), jumpBackMark(0), jumpForwardMark(0) {
-  statement1 = 0;
-  statement2 = 0;
-  statements = 0;
+StatementNEW::StatementNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner), jumpBackMark(0), jumpForwardMark(0), statement1(0), statement2(0), statements(0) {
   if (scanner->token->getInformation()->getType() == TTYPE_CONFIRMED_IDENTIFIER || scanner->token->getInformation()->getType() == TTYPE_ARRAY) {
     scanner->nextToken();
     index = new IndexNEW(scanner, out, pE, tE);
+
     if (scanner->token->getInformation()->getType() == TTYPE_EQUALS) {
       scanner->nextToken();
       exp = new ExpNEW(scanner, out, pE, tE);
@@ -265,9 +265,11 @@ StatementNEW::StatementNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) :
   }
   else if (scanner->token->getInformation()->equals("print")) {
     scanner->nextToken();
+
     if (scanner->token->getInformation()->getType() == TTYPE_R_B_O) {
       scanner->nextToken();
       exp = new ExpNEW(scanner, out, pE, tE);
+
       if (scanner->token->getInformation()->getType() == TTYPE_R_B_C) {
         statementType = STATEMENT_PRINT;
         scanner->nextToken();
@@ -280,6 +282,7 @@ StatementNEW::StatementNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) :
   }
   else if (scanner->token->getInformation()->equals("read")) {
     scanner->nextToken();
+
     if (scanner->token->getInformation()->getType() == TTYPE_R_B_O) {
       scanner->nextToken();
 
@@ -334,6 +337,22 @@ StatementNEW::StatementNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) :
     } else
       parseError("Missing '('");
   }
+  //  else if (scanner->token->getInformation()->equals("while")) {
+  //    scanner->nextToken();
+  //    if (scanner->token->getInformation()->getType() == TTYPE_R_B_O) {
+  //      PROGRESS("statement->exp");
+  //      scanner->nextToken();
+  //      exp = new ExpNEW(scanner, out);
+  //      if (scanner->token->getInformation()->getType() == TTYPE_R_B_C) {
+  //          PROGRESS("statement->statement1");
+  //          scanner->nextToken();
+  //          statement1 = new StatementNEW(scanner, out);
+  //          statementType = STATEMENT_WHILE;
+  //      } else
+  //          parseError("Missing ')'");
+  //    } else
+  //        parseError("Missing '('");
+  //  }
   else if(scanner->token->getInformation()->getType() == TTYPE_C_B_O) {
       scanner->nextToken();
       statements = new StatementsNEW(scanner, out, pE, tE);
@@ -345,22 +364,6 @@ StatementNEW::StatementNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) :
       else
         parseError("Missing '}'");
   }
-//  else if (scanner->token->getInformation()->equals("while")) {
-//    scanner->nextToken();
-//    if (scanner->token->getInformation()->getType() == TTYPE_R_B_O) {
-//      PROGRESS("statement->exp");
-//      scanner->nextToken();
-//      exp = new ExpNEW(scanner, out);
-//      if (scanner->token->getInformation()->getType() == TTYPE_R_B_C) {
-//          PROGRESS("statement->statement1");
-//          scanner->nextToken();
-//          statement1 = new StatementNEW(scanner, out);
-//          statementType = STATEMENT_WHILE;
-//      } else
-//          parseError("Missing ')'");
-//    } else
-//        parseError("Missing '('");
-//  }
   else
     parseError("Expected 'print', 'read', 'if', 'while', '{' or an identifier.");
 }
