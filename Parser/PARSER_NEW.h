@@ -25,6 +25,19 @@
 #define OP_EQUAL_TYPE		107 // =
 #define OP_NOT_TYPE 		108 // !
 #define OP_AND_TYPE			109 // &
+// Statement types
+#define STATEMENT_ASSIGN    110 // x = 1; or x[2] = 1;
+#define STATEMENT_PRINT     111 // print(x);
+#define STATEMENT_READ      112 // read(x);
+#define STATEMENT_IF_ELSE   113 // if(...) ... else ...; | if(...) {...} else {...};
+#define STATEMENT_WHILE     114 // while(...) ...; or while(...) {...};
+#define STATEMENT_BLOCK     115 // {...}
+// Operation types
+#define EXPRESSION_BRACKETS  115 // (...)
+#define EXPRESSION_IDENTIFIER 116 // x or x[2]
+#define EXPRESSION_INT       117 // 0,1,2...
+#define EXPRESSION_NEGATIVE  118 // -x
+#define EXPRESSION_NOT       119 // !(x > 2)
 
 class Scanner;
 class OutBuffer;
@@ -156,7 +169,7 @@ class ArrayNEW : public Node {
 
 class StatementsNEW : public Node {
 
-    // Each top level statement (top leve = not inside a {} block) is stored in
+    // Each top level statement (top level = not inside a {} block) is stored in
     // a list here. Upon calling makeCode() each list-element's makeCode() is
     // called. Each element contains another statementList (see StatementNEW).
     //  - in case of a single statement (e.g. "print(a);") that sublist stores a
@@ -201,11 +214,24 @@ class StatementNEW : public Node {
     int jumpBackMark; // use in a loop to jump back to the loop's condition before the loop's main body
     int jumpForwardMark;  // used both in if and while to skip main body of conditional structure
 
+    // In case of a single statement statement1/2 are used (statement1 is for the if-block, statement2 is for the else-block)
+    // In case of multiple statements statements1/2 are used (statement1 is for the if-block, statement2 is for the else-block)
+    // Combinations of the above can also be created; multiple statements case is automatically triggered when "{" is detected
+    // even if the block surrounded by the curly brackets has just a single statement in it
     StatementNEW* statement1;
+//    StatementsNEW* statements1;
     StatementNEW* statement2;
-    ListT<StatementNEW>* statements;
+//    StatementsNEW* statements2;
+    StatementsNEW* statements;
+
+    IndexNEW* index;
+    ExpNEW* exp;
+    //ListT<StatementNEW>* statements;
+
+    unsigned int statementType;
 
   public:
+
     StatementNEW(Scanner*, OutBuffer*, int&, int&);
     virtual ~StatementNEW();
 
@@ -227,6 +253,13 @@ class ExpNEW : public Node {
 };
 
 class Exp2NEW : public Node {
+
+    ExpNEW* exp;
+    Exp2NEW* exp2;
+    IndexNEW* index;
+
+    int expressionType;
+
   public:
     Exp2NEW(Scanner*, OutBuffer*, int&, int&);
     virtual ~Exp2NEW();
@@ -236,6 +269,9 @@ class Exp2NEW : public Node {
 };
 
 class IndexNEW : public Node {
+
+    ExpNEW* exp;
+
   public:
     IndexNEW(Scanner*, OutBuffer*, int&, int&);
     virtual ~IndexNEW();
@@ -245,6 +281,7 @@ class IndexNEW : public Node {
 };
 
 class Op_expNEW : public Node {
+
     OpNEW* op;
     ExpNEW* exp;
 
