@@ -330,29 +330,34 @@ StatementNEW::StatementNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) :
                 statement2 = new StatementNEW(scanner, out, pE, tE); // else-block with a single statement
 
               statementType = STATEMENT_IF_ELSE;
-          } else
-              parseError("Missing 'else'");
-      } else
-          parseError("Missing ')'");
-    } else
+          }
+          else
+            parseError("Missing 'else'");
+      }
+      else
+        parseError("Missing ')'");
+    }
+    else
       parseError("Missing '('");
   }
-  //  else if (scanner->token->getInformation()->equals("while")) {
-  //    scanner->nextToken();
-  //    if (scanner->token->getInformation()->getType() == TTYPE_R_B_O) {
-  //      PROGRESS("statement->exp");
-  //      scanner->nextToken();
-  //      exp = new ExpNEW(scanner, out);
-  //      if (scanner->token->getInformation()->getType() == TTYPE_R_B_C) {
-  //          PROGRESS("statement->statement1");
-  //          scanner->nextToken();
-  //          statement1 = new StatementNEW(scanner, out);
-  //          statementType = STATEMENT_WHILE;
-  //      } else
-  //          parseError("Missing ')'");
-  //    } else
-  //        parseError("Missing '('");
-  //  }
+  else if (scanner->token->getInformation()->equals("while")) {
+    scanner->nextToken();
+
+    if (scanner->token->getInformation()->getType() == TTYPE_R_B_O) {
+      scanner->nextToken();
+      exp = new ExpNEW(scanner, out, pE, tE);
+
+      if (scanner->token->getInformation()->getType() == TTYPE_R_B_C) {
+          scanner->nextToken();
+          statement1 = new StatementNEW(scanner, out, pE, tE);
+          statementType = STATEMENT_WHILE;
+      }
+      else
+        parseError("Missing ')'");
+    }
+    else
+      parseError("Missing '('");
+  }
   else if(scanner->token->getInformation()->getType() == TTYPE_C_B_O) {
       scanner->nextToken();
       statements = new StatementsNEW(scanner, out, pE, tE);
