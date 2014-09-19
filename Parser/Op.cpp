@@ -1,4 +1,8 @@
 #include "Op.h"
+#include <iostream>
+
+using std::endl;
+using std::cout;
 
 Op::Op(Scanner* scanner, OutBuffer* out):Nterm(scanner) {
   UP
@@ -38,7 +42,7 @@ void Op::makeCode(OutBuffer* out) {
     case TTYPE_EQUALS:
       (*out) << "EQU\n";
       break;
-    case TTYPE_N_EQUALS:	// FIXME: this should be in EXP2 and Exp since the "!" is handled there (OR NOT?! Think about it)
+    case TTYPE_NOT:	// FIXME: this should be in EXP2 and Exp since the "!" is handled there (OR NOT?! Think about it)
       (*out) << "NOT\n";
       break;
     case TTYPE_AEQUI:

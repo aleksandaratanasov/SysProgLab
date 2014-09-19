@@ -23,21 +23,22 @@
 #define OP_LESS_TYPE		105 // <
 #define OP_GREATER_TYPE		106 // >
 #define OP_EQUAL_TYPE		107 // =
-#define OP_NOT_TYPE 		108 // !
-#define OP_AND_TYPE			109 // &
+#define OP_AEQUI_TYPE       108 // <=>
+#define OP_NOT_TYPE 		109 // !
+#define OP_AND_TYPE			110 // &
 // Statement types
-#define STATEMENT_ASSIGN    110 // x = 1; or x[2] = 1;
-#define STATEMENT_PRINT     111 // print(x);
-#define STATEMENT_READ      112 // read(x);
-#define STATEMENT_IF_ELSE   113 // if(...) ... else ...; | if(...) {...} else {...};
-#define STATEMENT_WHILE     114 // while(...) ...; or while(...) {...};
-#define STATEMENT_BLOCK     115 // {...}
+#define STATEMENT_ASSIGN    111 // x = 1; or x[2] = 1;
+#define STATEMENT_PRINT     112 // print(x);
+#define STATEMENT_READ      113 // read(x);
+#define STATEMENT_IF_ELSE   114 // if(...) ... else ...; | if(...) {...} else {...};
+#define STATEMENT_WHILE     115 // while(...) ...; or while(...) {...};
+#define STATEMENT_BLOCK     116 // {...}
 // Operation types
-#define EXPRESSION_BRACKETS  115 // (...)
-#define EXPRESSION_IDENTIFIER 116 // x or x[2]
-#define EXPRESSION_INT       117 // 0,1,2...
-#define EXPRESSION_NEGATIVE  118 // -x
-#define EXPRESSION_NOT       119 // !(x > 2)
+#define EXPRESSION_BRACKETS  117 // (...)
+#define EXPRESSION_IDENTIFIER 118 // x or x[2]
+#define EXPRESSION_INT       119 // 0,1,2...
+#define EXPRESSION_NEGATIVE  120 // -x
+#define EXPRESSION_NOT       121 // !(x > 2)
 
 class Scanner;
 class OutBuffer;

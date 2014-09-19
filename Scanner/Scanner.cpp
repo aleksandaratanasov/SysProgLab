@@ -216,7 +216,7 @@ void scanner_State_Multi(Scanner* scanner){
 }
 
 void scanner_State_Not(Scanner* scanner){
-  scanner->tokenType = TTYPE_N_EQUALS;
+  scanner->tokenType = TTYPE_NOT;
   scanner->state = scanner_State_Start;
 }
 

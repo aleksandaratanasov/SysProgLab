@@ -46,7 +46,7 @@ Exp2::Exp2(Scanner* scanner, OutBuffer* out):Nterm(scanner) {
     scanner->nextToken();
     exp2 = new Exp2(scanner, out);
   }
-  else if (scanner->token->getInformation()->getType() == TTYPE_N_EQUALS) { // FIXME: was TTYPE_EXCL_M
+  else if (scanner->token->getInformation()->getType() == TTYPE_NOT) { // FIXME: was TTYPE_EXCL_M
     type = 5;
     cout << "TYPECHECK() -- NOT EQUALS TOKEN" << endl;
     PROGRESS("exp2->exp2");
