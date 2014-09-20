@@ -63,84 +63,127 @@ class Exp2NEW;
 class Op_expNEW;
 class OpNEW;
 
-// The parser verifies if the parsed tokens are part of a meaningful source code
-// (meaningful = obeys the rules of the language's grammar), checks their types
-// and finally generates code that is written to an interpreter file, which then
-// can be run by an interpreter
-// The parsing process is based on a top down parsing tree, where we start from
-// from the highest node (Prog) and try to go as deep as possible following a type
-// verification
+/*!
+ * \brief The parser verifies if the parsed tokens are part of a meaningful program
+ * (meaningful = obeys the rules of the language's grammar), checks their types
+ * and finally generates code that is written to an interpreter file, which then
+ * can be run by an interpreter
+ * The parsing process is based on a top down parsing tree, where we start from
+ * from the highest node (Prog) and try to go as deep as possible
+ */
 class ParserNEW {
 
     friend class ListT<Node>;
-    static unsigned int depth_counter; // current nesting depth in the source code based
-                                       // on the number of opened/closed curly brackets
 
+    //! Error statistics if parsing was successful or not
+    int parseErrors, typeErrors;
+
+    //! Root node of the whole parse tree
     ProgNEW* prog;
 
-    void typeCheck();// calls recursively the typeCheck() for each Node
-    void makeCode(); // calls recursively the makeCode() for each Node
+    //! Initiates the type-check phase for each node in the parse tree
+    void typeCheck();
+    //! Initiates the code generation for each node in the parse tree
+    void makeCode();
 
 public:
-  // Creates a parser given a scanner and buffer for writing an interpreter file
+  //! Creates a parser given a scanner and buffer for reading a source file and writing code to an interpreter file
   ParserNEW(Scanner*, OutBuffer*);
 
+  //! Deletes all allocated memory for the parser
   ~ParserNEW();
+
+  //! Retrieves parsing errors
+  unsigned int getParseErrors();
+
+  //! Retrieves type errors
+  unsigned int getTypeErrors();
 
 };
 
+/*!
+ * \brief Node is a superclass from which all nodes in the parsing tree are derived
+ */
 class Node {
   protected:
     // Error counters for the final statistic. A successful parsing process has to have both equal to 0
+    //! Counts parsing errors during the generation of the parse tree
     static unsigned int parseErrors;
+    //! Counts type errors during execution of type-check
     static unsigned int typeErrors;
 
+    //! Reads a given source file, tokenizes it, generates a symbol table and passes all the information to the parser (see Scanner for more information)
     Scanner* scanner;
+    //! Location of the current token passed by the scanner to the parser in the source file
     unsigned int line,column;
+    //! Stores the numeric value if the current token passed by the scanner to the parser in the source file is a number
     long value;
+    //! Stores the information about the current token passed by the scanner to the parser in the source file is a number
     Information* info;
 
-    // Used for conditional jumps
+    //! Used for conditional jumps in if-else and while statements
     static int mark;
 
-    // Error handling
+    //! Handles parsing errors
     void parseError(const char* message);
+    //! Handles type-check errors
     void typeError(const char* message);
 
-    // Clones token
+    //! Clones a given token
     void cloneTokenData();
   public:
+    //! Each node in the parsing tree has a type that is assigned and checked during the type-check phase
     unsigned int nodeType;
 
+    //! Creates the node
     Node(Scanner* scanner);
+    //! Destroys the node
     virtual ~Node();
 
+    //! Initiates the type-check phase for the node
     virtual void typeCheck() = 0;
+    //! Initiates the code generation for the node
     virtual void makeCode(OutBuffer*) = 0;
 };
 
+/*!
+ * \brief Root of the parsing tree
+ */
 class ProgNEW : public Node {
 
+  //! Stores all declerations in a given source code
   DeclsNEW* decls;
+  //! Stores all statements in a given source code
   StatementsNEW* statements;
 
  public:
+  //! Initializes decls and statements
   ProgNEW(Scanner*, OutBuffer*, int&, int&);
+  //! Deletes decls and statements
   virtual ~ProgNEW();
 
+  //! Initiates the type-check phase for PROG
   virtual void typeCheck();
+  //! Initiates the code generation for PROG
   virtual void makeCode(OutBuffer* out);
 };
 
+/*!
+ * \brief Stores all declerations
+ */
 class DeclsNEW : public Node {
     // contains all variable declarations
     // ones we exit the last Decl and enter Statementes
     // typeCheck() and makeCode() are invoked recursively
     // for each element of the list
+    //! All declerations are stored in a list (see ListT for more information)
+    //! Once the parsing of all of them is complete, type-check and code generation recursively go through each decleration
     ListT<DeclNEW>* decls;
 
   public:
+    //! Initializes decls and recursively parses all decleration in a given source code
     DeclsNEW(Scanner*, OutBuffer*, int&, int&);
+    //! Deletes all declerations stored in decls
     virtual ~DeclsNEW();
 
     virtual void typeCheck();
@@ -200,21 +243,23 @@ class StatementsNEW : public Node {
      *        |
      *        |----print(a);
      */
+    //! Stores a set of statements. Each statement can be a composite one (if-else or while with block statement inside)
+    //! that stores another set of statements and so on (see ListT for more information)
     ListT<StatementNEW>* statements;
 
   public:
+    //! Creates a set of statements. The first node of this type is also used to generate all other statements
     StatementsNEW(Scanner*, OutBuffer*, int&, int&);
+    //! Deletes a set of statements that is stored in the statements list
     virtual ~StatementsNEW();
 
+    //! Initiates the type-check phase for all statements stored in the statements list
     virtual void typeCheck();
+    //! Initiates the code generation for all statements stored in the statements list
     virtual void makeCode(OutBuffer* out);
 };
 
 class StatementNEW : public Node {
-
-    int jumpBackMark; // use in a loop to jump back to the loop's condition before the loop's main body
-    int jumpForwardMark;  // used both in if and while to skip main body of conditional structure
-
     // In case of a single statement statement1/2 are used (statement1 is for the if-block, statement2 is for the else-block)
     // In case of multiple statements statements1/2 are used (statement1 is for the if-block, statement2 is for the else-block)
     // Combinations of the above can also be created; multiple statements case is automatically triggered when "{" is detected
@@ -241,6 +286,8 @@ class StatementNEW : public Node {
 };
 
 class ExpNEW : public Node {
+
+    friend class Op_expNEW;
 
     Exp2NEW* exp2;
     Op_expNEW* op_exp;
@@ -282,6 +329,8 @@ class IndexNEW : public Node {
 };
 
 class Op_expNEW : public Node {
+
+    friend class ExpNEW;
 
     OpNEW* op;
     ExpNEW* exp;

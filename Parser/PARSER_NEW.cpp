@@ -1,16 +1,15 @@
 #include "PARSER_NEW.h"
 #include "../Scanner/Scanner.h"
 #include <iostream>
-#include <time.h> // For measuring the compilation time
+//#include <time.h> // For measuring the compilation time
 
 using std::cout;
 using std::endl;
 using std::cerr;
 
-ParserNEW::ParserNEW(Scanner *scanner, OutBuffer *out) {
-  clock_t start, end;
-  int typeErrors, parseErrors;
-  start = clock();
+ParserNEW::ParserNEW(Scanner *scanner, OutBuffer *out) : parseErrors(0), typeErrors(0) {
+//  clock_t start, end;
+//  start = clock();
 
 //  ListTChain<StatementNEW>* ltc = new ListTChain<StatementNEW>();
 //  delete ltc;
@@ -22,16 +21,24 @@ ParserNEW::ParserNEW(Scanner *scanner, OutBuffer *out) {
   prog->typeCheck();
   prog->makeCode(out);
 
-  end = clock();
-  if(!typeErrors && !parseErrors)
-    cout << "Parsing complete" << endl << "Used time: "  << (double)(end-start)/CLOCKS_PER_SEC << " s" << endl;
-  else
-    cout << "Parsing failed" << endl << "Used time: "  << (double)(end-start)/CLOCKS_PER_SEC << " s" << endl;
+//  end = clock();
+//  if(!typeErrors && !parseErrors)
+//    cout << "Parsing complete" << endl << "Used time: "  << (double)(end-start)/CLOCKS_PER_SEC << " s" << endl;
+//  else
+//    cout << "Parsing failed" << endl << "Used time: "  << (double)(end-start)/CLOCKS_PER_SEC << " s" << endl;
 }
 
 ParserNEW::~ParserNEW() {
   if(prog)
     delete prog;
+}
+
+unsigned int ParserNEW::getParseErrors() {
+  return parseErrors;
+}
+
+unsigned int ParserNEW::getTypeErrors() {
+  return typeErrors;
 }
 
 Node::Node(Scanner* scanner) {
@@ -283,7 +290,7 @@ void StatementsNEW::makeCode(OutBuffer *out) {
   }
 }
 
-StatementNEW::StatementNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner), jumpBackMark(0), jumpForwardMark(0), statement1(0), statement2(0), statements(0) {
+StatementNEW::StatementNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner), statement1(0), statement2(0), statements(0) {
   if (scanner->token->getInformation()->getType() == TTYPE_CONFIRMED_IDENTIFIER || scanner->token->getInformation()->getType() == TTYPE_ARRAY) {
     scanner->nextToken();
     index = new IndexNEW(scanner, out, pE, tE);
@@ -550,15 +557,15 @@ void ExpNEW::typeCheck() {
 void ExpNEW::makeCode(OutBuffer *out) {
   if (op_exp->nodeType == NO_TYPE)
     exp2->makeCode(out);
-  else if (op_exp->nodeType == OP_GREATER_TYPE) {
+  else if (op_exp->op->nodeType == OP_GREATER_TYPE) { //FIXED: had to call op_exp->op->nodeType (which returns the nodeType of the operation) and not just op_exp->nodeType
     op_exp->makeCode(out);
     exp2->makeCode(out);
     (*out) << "LES\n";  // FIXED: was LESS
   }
-  else if (op_exp->nodeType == OP_AEQUI_TYPE) { // FIXME: this type is never assigned!
+  else if (op_exp->op->nodeType == OP_AEQUI_TYPE) { // FIXME: this type is never assigned!
     exp2->makeCode(out);
     op_exp->makeCode(out);
-    (*out) << "NOT\n";	// this handles the ! and the <=> (check if this should be handled like this!) Note: currently there is no OP_AEQU_TYPE!!!
+    (*out) << "NOT\n";	//FIXED: had to call op_exp->op->nodeType (which returns the nodeType of the operation) and not just op_exp->nodeType
   }
   else {
     exp2->makeCode(out);
@@ -597,9 +604,9 @@ Exp2NEW::Exp2NEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scan
     scanner->nextToken();
     exp2 = new Exp2NEW(scanner, out, pE, tE);
   }
-  else if (scanner->token->getInformation()->getType() == TTYPE_NOT) { // FIXME: was TTYPE_EXCL_M
+  else if (scanner->token->getInformation()->getType() == TTYPE_NOT) { // FIXED: was TTYPE_EXCL_M
     expressionType = EXPRESSION_NOT;
-    cout << "TYPECHECK() -- NOT EQUALS TOKEN" << endl;
+//    cout << "TYPECHECK() -- NOT EQUALS TOKEN" << endl;
     scanner->nextToken();
     exp2 = new Exp2NEW(scanner, out, pE, tE);
   }
@@ -766,10 +773,9 @@ void OpNEW::makeCode(OutBuffer *out) {
         (*out) << "DIV\n";
         break;
       case OP_GREATER_TYPE:
-        cout << "> SIGN" << endl;
   //      (*out) << "----TTYPE_GREATER----\n";
 //        (*out) << "LES\nNOT\n";
-        (*out) << "LES\nNOT\n"; // FIX: partial fix for greater operator; this is not how it's described in the PDF documentation
+//        (*out) << "LES\nNOT\n"; // FIX: partial fix for greater operator; this is not how it's described in the PDF documentation
         break;
       case OP_LESS_TYPE:
         (*out) << "LES\n";
@@ -781,10 +787,9 @@ void OpNEW::makeCode(OutBuffer *out) {
         (*out) << "NOT\n";
         break;
       case OP_AEQUI_TYPE:
-        cout << "<=> SIGN" << endl;
   //      (*out) << "----TTYPE_AEQUI----\n";
-//        (*out) << "EQU\n";
-        (*out) << "EQU\nNOT\n"; //FIX: added "NOT\n"; REASON: combined with NOT - FIXME: when debugging <=> we come here without the NOT so it is evaluated as =
+        (*out) << "EQU\n";
+//        (*out) << "EQU\nNOT\n"; //FIX: added "NOT\n"; REASON: combined with NOT - FIXME: when debugging <=> we come here without the NOT so it is evaluated as =
         break;
       case OP_AND_TYPE:
         (*out) << "AND\n";

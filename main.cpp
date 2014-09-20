@@ -2,8 +2,10 @@
 #include "Scanner/Information.h"
 #include "Scanner/Token.h"
 #include <iostream>
+#include <time.h> // For measuring the compilation time
+
 #include "Scanner/t_const.h"
-#include "Parser/Parser.h"
+//#include "Parser/Parser.h"
 
 #include "Container/ObjectContainer.h"
 
@@ -27,6 +29,8 @@ int main(int argc, char **argv) {
   } else {
     cout << "Running hskac..." << endl << "\n  Input File : " << argv[1] <<  endl << "  Output File: " << argv[2]  <<  endl <<  endl;
   }
+  clock_t start, end;
+  start = clock();
 
   // create the set of keywords
   const char* keywords[] = {"print","read","int","while","if","else"};
@@ -58,6 +62,13 @@ int main(int argc, char **argv) {
   // TEST END
 
   ParserNEW *parser = new ParserNEW(scanner, out);
+
+  end = clock();
+  if(!parser->getParseErrors() && !parser->getTypeErrors())
+    cout << "Compilation completed" << endl << "Used time: "  << (double)(end-start)/CLOCKS_PER_SEC << " s" << endl;
+  else
+    cout << "Compilation failed" << endl << "Used time: "  << (double)(end-start)/CLOCKS_PER_SEC << " s" << endl;
+
 
   // clean everything
   delete inBuf;
