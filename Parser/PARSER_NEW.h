@@ -1,7 +1,6 @@
 #ifndef _PARSERNEW_
 #define _PARSERNEW_
 
-// NODE
 #include <iostream>
 #include "../Scanner/Token.h"
 #include "../Scanner/Scanner.h"
@@ -9,10 +8,10 @@
 #include "../Scanner/t_const.h"
 #include "../IO/OutBuffer.h"
 #include "ListT.h"
-// Control types
+//! Control types
 #define ERROR_TYPE 			999
 #define EOF       			2
-// Misc node types
+//! Misc node types
 #define NO_TYPE 			3
 #define ARRAY_TYPE			4
 #define INT_TYPE			5
@@ -26,19 +25,19 @@
 #define OP_AEQUI_TYPE       108 // <=>
 #define OP_NOT_TYPE 		109 // !
 #define OP_AND_TYPE			110 // &
-// Statement types
-#define STATEMENT_ASSIGN    111 // x = 1; or x[2] = 1;
-#define STATEMENT_PRINT     112 // print(x);
-#define STATEMENT_READ      113 // read(x);
-#define STATEMENT_IF_ELSE   114 // if(...) ... else ...; | if(...) {...} else {...};
-#define STATEMENT_WHILE     115 // while(...) ...; or while(...) {...};
-#define STATEMENT_BLOCK     116 // {...}
-// Operation types
-#define EXPRESSION_BRACKETS  117 // (...)
-#define EXPRESSION_IDENTIFIER 118 // x or x[2]
-#define EXPRESSION_INT       119 // 0,1,2...
-#define EXPRESSION_NEGATIVE  120 // -x
-#define EXPRESSION_NOT       121 // !(x > 2)
+//! Statement types
+#define STATEMENT_ASSIGN    111 //! x = 1; or x[2] = 1;
+#define STATEMENT_PRINT     112 //! print(x);
+#define STATEMENT_READ      113 //! read(x);
+#define STATEMENT_IF_ELSE   114 //! if(...) ... else ...; | if(...) {...} else {...};
+#define STATEMENT_WHILE     115 //! while(...) ...; or while(...) {...};
+#define STATEMENT_BLOCK     116 //! {...}
+//! Operation types
+#define EXPRESSION_BRACKETS  117 //! (...)
+#define EXPRESSION_IDENTIFIER 118 //! x or x[2]
+#define EXPRESSION_INT       119 //! 0,1,2...
+#define EXPRESSION_NEGATIVE  120 //! -x
+#define EXPRESSION_NOT       121 //! !(x > 2)
 
 class Scanner;
 class OutBuffer;
@@ -190,8 +189,12 @@ class DeclsNEW : public Node {
     virtual void makeCode(OutBuffer* out);
 };
 
+/*!
+ * \brief Stores a single decleration. Can either be a numeric one or an array
+ */
 class DeclNEW : public Node {
 
+    //! Stores an Array node in case the decleration is for an array
     ArrayNEW* array;
 
   public:
@@ -211,6 +214,9 @@ class ArrayNEW : public Node {
     virtual void makeCode(OutBuffer* out);
 };
 
+/*!
+ * \brief Stores multiple statements
+ */
 class StatementsNEW : public Node {
 
     // Each top level statement (top level = not inside a {} block) is stored in
@@ -259,21 +265,22 @@ class StatementsNEW : public Node {
     virtual void makeCode(OutBuffer* out);
 };
 
+/*!
+ * \brief Stores a single or a complex (if-else or while) statement
+ */
 class StatementNEW : public Node {
-    // In case of a single statement statement1/2 are used (statement1 is for the if-block, statement2 is for the else-block)
-    // In case of multiple statements statements1/2 are used (statement1 is for the if-block, statement2 is for the else-block)
-    // Combinations of the above can also be created; multiple statements case is automatically triggered when "{" is detected
-    // even if the block surrounded by the curly brackets has just a single statement in it
+    //! Used in a case of a single statement, if-statement (but not else-statement) and while-statement
     StatementNEW* statement1;
-//    StatementsNEW* statements1;
+    //! Used in a case of an if-else statement storing the else-statement
     StatementNEW* statement2;
-//    StatementsNEW* statements2;
+    //! Used for a block statement surrounded by curly brackets
     StatementsNEW* statements;
 
     IndexNEW* index;
     ExpNEW* exp;
-    //ListT<StatementNEW>* statements;
 
+    //! Stores the type of the statement. Can be one of following:
+    //! STATEMENT_ASSIGN, STATEMENT_READ, STATEMENT_PRINT, STATEMENT_IF_ELSE, STATEMENT_WHILE and STATEMENT_BLOCK
     unsigned int statementType;
 
   public:
@@ -285,6 +292,9 @@ class StatementNEW : public Node {
     virtual void makeCode(OutBuffer* out);
 };
 
+/*!
+ * \brief Stores the first acctor in an expression and its operation
+ */
 class ExpNEW : public Node {
 
     friend class Op_expNEW;
@@ -300,12 +310,17 @@ class ExpNEW : public Node {
     virtual void makeCode(OutBuffer* out);
 };
 
+/*!
+ * \brief Stores the second actor in an expression
+ */
 class Exp2NEW : public Node {
 
     ExpNEW* exp;
     Exp2NEW* exp2;
     IndexNEW* index;
 
+    //! Stores the type of the expression. Can be one of following:
+    //! EXPRESSION_IDENTIFIER (in case an actor is an identifier), EXPRESSION_INT (in case an actor is a numeric), EXPRESSION_BRACKETS, EXPRESSION_NEGATIVE (in case a numeric actor is negated) and EXPRESSION_NOT (in case a logical actor is negated)
     int expressionType;
 
   public:
@@ -316,6 +331,9 @@ class Exp2NEW : public Node {
     virtual void makeCode(OutBuffer* out);
 };
 
+/*!
+ * \brief Stores an index if an array is accessed
+ */
 class IndexNEW : public Node {
 
     ExpNEW* exp;
@@ -328,6 +346,9 @@ class IndexNEW : public Node {
     virtual void makeCode(OutBuffer* out);
 };
 
+/*!
+ * \brief Stores an operation and an expression that the operation is applied on
+ */
 class Op_expNEW : public Node {
 
     friend class ExpNEW;
@@ -343,6 +364,9 @@ class Op_expNEW : public Node {
     virtual void makeCode(OutBuffer* out);
 };
 
+/*!
+ * \brief Stores an operation
+ */
 class OpNEW : public Node {
   public:
     OpNEW(Scanner*, OutBuffer*, int&, int&);

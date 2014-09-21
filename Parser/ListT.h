@@ -109,7 +109,7 @@ class ListT {
       return size;
     }
 
-    //! Removes the head of the list and set its successor as the new one
+    //! Removes the head of the list and sets its successor as the new one
     //! Used by the destructor for a recursive deletion of all elements in the list
     void removeFirst() {
       if (first) {

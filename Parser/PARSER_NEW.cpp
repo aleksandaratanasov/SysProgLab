@@ -414,18 +414,16 @@ StatementNEW::StatementNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) :
 }
 
 StatementNEW::~StatementNEW() {
-  if(!statement1)
+  if(index)
+    delete index;
+  if(exp)
+    delete exp;
+  if(statement1)
     delete statement1;
-//  if(!statements1)
-//    delete statements1;
-  if(!statement2)
+  if(statement2)
     delete statement2;
-  if(!statements)
+  if(statements)
     delete statements;
-//  if(!statements2)
-//    delete statements2;
-//  if(statements->getSize())
-//    delete statements;
 }
 
 void StatementNEW::typeCheck() {
@@ -536,9 +534,9 @@ ExpNEW::ExpNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanne
 }
 
 ExpNEW::~ExpNEW() {
-  if(!exp2)
+  if(exp2)
     delete exp2;
-  if(!op_exp)
+  if(op_exp)
     delete op_exp;
 }
 
@@ -615,11 +613,11 @@ Exp2NEW::Exp2NEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scan
 }
 
 Exp2NEW::~Exp2NEW() {
-  if(!exp)
+  if(exp)
     delete exp;
-  if(!exp2)
+  if(exp2)
     delete exp2;
-  if(!index)
+  if(index)
     delete index;
 }
 
@@ -723,8 +721,6 @@ OpNEW::OpNEW(Scanner* scanner, OutBuffer* out, int& pE, int &tE) : Node(scanner)
 OpNEW::~OpNEW() {}
 
 void OpNEW::typeCheck() {
-//  nodeType = info->getType();
-
   switch (info->getType()) {
     case TTYPE_PLUS:
       nodeType = OP_PLUS_TYPE;
@@ -773,7 +769,6 @@ void OpNEW::makeCode(OutBuffer *out) {
         (*out) << "DIV\n";
         break;
       case OP_GREATER_TYPE:
-  //      (*out) << "----TTYPE_GREATER----\n";
 //        (*out) << "LES\nNOT\n";
 //        (*out) << "LES\nNOT\n"; // FIX: partial fix for greater operator; this is not how it's described in the PDF documentation
         break;
@@ -787,7 +782,6 @@ void OpNEW::makeCode(OutBuffer *out) {
         (*out) << "NOT\n";
         break;
       case OP_AEQUI_TYPE:
-  //      (*out) << "----TTYPE_AEQUI----\n";
         (*out) << "EQU\n";
 //        (*out) << "EQU\nNOT\n"; //FIX: added "NOT\n"; REASON: combined with NOT - FIXME: when debugging <=> we come here without the NOT so it is evaluated as =
         break;
@@ -795,40 +789,4 @@ void OpNEW::makeCode(OutBuffer *out) {
         (*out) << "AND\n";
         break;
     }
-//  switch (info->getType()) {
-//    case TTYPE_PLUS:
-//      (*out) << "ADD\n";
-//      break;
-//    case TTYPE_MINUS:
-//      (*out) << "SUB\n";
-//      break;
-//    case TTYPE_MULT:
-//      (*out) << "MUL\n";
-//      break;
-//    case TTYPE_DIV:
-//      (*out) << "DIV\n";
-//      break;
-//    case TTYPE_GREATER:
-//      cout << "> SIGN" << endl;
-////      (*out) << "----TTYPE_GREATER----\n";
-//      (*out) << "LES\nNOT\n"; // FIX: partial fix for greater operator; this is not how it's described in the PDF documentation
-//      break;
-//    case TTYPE_LESS:
-//      (*out) << "LES\n";
-//      break;
-//    case TTYPE_EQUALS:
-//      (*out) << "EQU\n";
-//      break;
-//    case TTYPE_NOT:	// FIXME: this should be in EXP2 and Exp since the "!" is handled there (OR NOT?! Think about it)
-//      (*out) << "NOT\n";
-//      break;
-//    case TTYPE_AEQUI:
-//      cout << "<=> SIGN" << endl;
-////      (*out) << "----TTYPE_AEQUI----\n";
-//      (*out) << "EQU\nNOT\n"; //FIX: added "NOT\n"; REASON: combined with NOT - FIXME: when debugging <=> we come here without the NOT so it is evaluated as =
-//      break;
-//    case TTYPE_AMP:
-//      (*out) << "AND\n";
-//      break;
-//  }
 }
