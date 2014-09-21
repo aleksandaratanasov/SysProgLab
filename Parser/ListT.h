@@ -89,27 +89,27 @@ class ListT {
       this->first = first;
     }
 
-    //! Retrieve the list's head
+    //! Retrieves the list's head
     ListTElement<T>* getFirst() {
       return first;
     }
 
-    //! Set the list's tail
+    //! Sets the list's tail
     void setLast(ListTElement<T>* last) {
       this->last = last;
     }
 
-    //! Retrieve the list's tail
+    //! Retrieves the list's tail
     ListTElement<T>* getLast() {
       return last;
     }
 
-    //! Retrieve the list's size (only number of elements, not the memory allocated!)
+    //! Retrieves the list's size (only number of elements, not the memory allocated!)
     unsigned long getSize() {
       return size;
     }
 
-    //! Remove the head of the list and set its successor as the new one
+    //! Removes the head of the list and set its successor as the new one
     //! Used by the destructor for a recursive deletion of all elements in the list
     void removeFirst() {
       if (first) {
@@ -122,7 +122,7 @@ class ListT {
       }
     }
 
-    //! Create a new element using a given generic piece of information and add it to the end of the list
+    //! Creates a new element using a given generic piece of information and add it to the end of the list
     void append(T* data) {
       ListTElement<T>* el = new ListTElement<T>();
       el->setData(data);
@@ -136,8 +136,10 @@ class ListT {
       ++size;
     }
 
-    //! Locate an element based on its index. Due to the possibility that the list may contain elements of various
-    //! types derived from a superclass this is the only way to look for a specific element
+    //! Locates an element based on its index. Due to the possibility that the list may contain elements of various
+    //! types derived from a superclass this is the only way to look for a specific element. If there are two or
+    //! more elements with the same index (can happen only if user assigns those manually), the first element encountered
+    //! that satisfies the search criterion is returned and the rest neglected
     T* searchFor(unsigned long index) const {
       ListTElement<T>* tmp = first;
       while (tmp) {
@@ -148,7 +150,7 @@ class ListT {
       return 0;
     }
 
-    //! Display all elements in the list
+    //! Displays all elements in the list
     void print() {
       ListTElement<T>* tmp = first;
       while (tmp) {
