@@ -9,3 +9,13 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:[path to library]
 Run the interpreter via following command:
 java -jar interpreter.jar
 
+Note
+===========
+The compiler produces code that can only be run by the interpreter's version uploaded here (summer term 2011)
+
+
+TODO
+===========
+1) Check the & operator
+2) Put parser's node classes in separate files like before to make the parser code more readable
+
