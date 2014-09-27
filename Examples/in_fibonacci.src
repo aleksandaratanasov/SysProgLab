@@ -1,0 +1,22 @@
+int i;
+int j;
+int c;
+int n;
+int count;
+int d;
+i = 0;
+j = 1;
+n = 30; (* first 30 numbers in the series *)
+count = 0;
+c = i+j;
+print(i);
+print(j);
+
+while(count < n-2) {
+  d = j+c;
+  print(d);
+  j = c;
+  c = d;
+  count = count + 1;
+};
+
