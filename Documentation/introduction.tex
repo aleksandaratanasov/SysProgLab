@@ -1,0 +1,19 @@
+%\rhead{hskac}
+%\lhead{Introduction}
+\chapter{Introduction}
+\paragraph{}
+	This document describes the internal workings of the hskac (short for \textbf{Hochschule Karlsruhe Compiler}), which is assigned as a lab exercise part of the lecture on \textit{operating systems}. It has the following structure:
+\begin{description}
+\item[Scanner] - takes a file containing a user's source code and tokenizes it (more on the process will be revealed in \ref{chapter:scanner}).
+\item[Parser] - using the extracted information from the scanner an abstract syntax tree (AST) is generated that checks if the user's source code represents a meaningful program\footnote{A program is considered \textit{meaningful} if it obays a set of given rules (language grammar and types)} after which a code file is created that can be executed in the provided by the teacher interpreter.
+\item[Multithreading] - a modification of the scanner for faster processing of the input file and tokenization
+\item[Tools] - a short description of the tools that were used in the process of creating the compiler
+\end{description}
+Each chapter will also point out some of the problems that were encountered during the development.
+\paragraph{}
+	There are three assignments along with the documentation on each of those that need to be accomplished in order to pass the exam.
+\begin{enumerate}
+\item Create a scanner (incl. documentation)
+\item Create a parser (incl. documentation)
+\item Add multithreading support to the scanner (incl. documentation)
+\end{enumerate}
