@@ -1,6 +1,139 @@
 %\rhead{hskac}
 %\lhead{Scanner}
-\chapter{Scanner}
+\chapter{Scanner} 
+%\addcontentsline{toc}{chapter}{Scanner}
 \label{chapter:scanner}
 \paragraph{}
-  The scanner is the part of a compiler, which is responsible for 
+  The \textit{scanner} is the part of a compiler, which is responsible for taking a source file (a piece of code written in text form by the user) and generating the data from it required by the \textit{parser}.
+  
+  	\section{Reading input file}
+  	\paragraph{}
+  		The text file that needs to be compiled is opened via the \textit{open()} function using the following flags:
+  		\begin{description}
+  			\item[O\_SYNC] - currently the only supported synchronized I/O on Linux
+  			\item[O\_DIRECT] - imposes alignment restrictions on the length and address of user-space buffers and the file offset of I/Os; it requires Linux kernel 2.4 and above
+  			\item[O\_RDONLY] - since data will only be read from the source file we restrict the access to it by using read-only mode
+  		\end{description}
+  	
+  	Each character is read and passed to a \textit{finite state machine} (\textit{FSM}; see \textit{Section \ref{sec:fsm}}), which tries to build tokens.
+  	
+	\section{Buffering of input file}
+	\label{sec:bufferin}
+	\paragraph{}
+		Before a character is passed along to the \textit{FSM} it is stored in a buffer. The scanner has a ring buffer inside allowing a continuous flow of data to the \textit{FSM} while new content is loaded in a new section of the ring buffer (see \textit{Section \ref{sec:multibuff}}). The current implementation uses four buffers in a ring but can be extended if required. Once one of those buffers is full another one takes its place and receives new characters read from the input file while the one that is full is worked on by the \textit{FSM}. The initial design contained a single buffer (array) devided in two and later in three parts but it was discovered that using completely seperate multiple buffers in a ring improved not only the performance but also made the implementation more readable, easy to follow (for additional information see \textit{Chapter \ref{chapter:parser}} and \textit{Chapter \ref{chapter:multithreading}}) and thread-safe. Each of the four buffers has a specific purpose:
+		\begin{description}
+			\item[Current content] - a single buffer is used to store data that is currently loaded from the input file
+			\item[History] - a single buffer contains the previous content of the currently used buffer; used in case when we need to go backwards
+			\item[Hot swap] - two buffers are in a waiting state; in case the currently used reading buffer gets filled up the scanner automatically switches to a free hot swap buffer.
+		\end{description}
+		
+	\paragraph{}
+		The destructor of the buffer responsible for reading the file closes the file once the reading is completed or an error has occurred.
+  
+	\section{Tokenization using FSM}
+  	\label{sec:fsm}
+  	\paragraph{}
+  	    The main role of the \textit{FSM} is to determine whether a character represents a single information unit or is a part of a larger one without which it has no meaning. Such information unit is called a \textit{token}. A \textit{token} is a piece of data that describes a \textit{lexem} - a keyword, an identifier's name, numbers or any of the signs obaying the rules of the given language's grammar. Each \textit{token} not only contains the \textit{lexem} that it referes to but also provides other useful information such as position of the lexem in the source file (line and column) with the first character of the lexem used as a locator, value if the \textit{lexem} is a digit/number, type (see \textit{Table \ref{tab:tokens}}) etc. Some of data is stored in a special container \textit{Information} that also stores the \textit{token}'s type (e.g. identifier, keyword, equal sign, opening round bracket etc.). As it was mentioned an \textit{FSM} (see \textit{Figure \ref{fig:fsm}}) that is specifically designed to recognize \textbf{only} words that are complient with the language's grammer determines whether a \textit{lexem} is a \textit{token} or not.\\
+    \begin{figure}
+    		\centering
+    		\label{fig:fsm}
+    		\includegraphics[scale=.5]{scanner_fsm}
+    		\caption{\textit{FSM} used for tokenization of a given source file}
+    \end{figure}
+    
+    \begin{table}
+	  	\begin{tabular}{|l|c|}
+	  	\hline 
+	  	TTYPE\_LONG\_RANGE\_ERROR & error when numeric value cannot be stored in a long int \\ 
+	  	\hline 
+	  	TTYPE\_UNKNOWN\_LETTER & error when unknown character is detected (terminates FSM) \\ 
+	  	\hline 
+	  	TTYPE\_FILE\_END & EOF (terminates FSM) \\ 
+	  	\hline 
+	  	TTYPE\_INT & numeric (0, 123, 927 etc.) \\ 
+	  	\hline 
+	  	TTYPE\_IDENTIFIER & identifier (x, x123, x1y2, myArr etc.) \\ 
+	  	\hline 
+	  	TTYPE\_PLUS & + \\ 
+	  	\hline 
+	  	TTYPE\_MINUS & - \\ 
+	  	\hline 
+	  	TTYPE\_DIV & / \\ 
+	  	\hline 
+	  	TTYPE\_MULT & * \\ 
+	  	\hline 
+	  	TTYPE\_GREATER & \textgreater \\ 
+	  	\hline 
+	  	TTYPE\_LESS & \textless \\ 
+	  	\hline 
+	  	TTYPE\_EQUALS & = (both for assignment and as a logical operator) \\ 
+	  	\hline 
+	  	TTYPE\_NOT & ! (negates a logical expression) \\ 
+	  	\hline 
+	  	TTYPE\_AEQUI &  \textless=\textgreater (logical equivalence) \\ 
+	  	\hline 
+	  	TTYPE\_AMP & \& (logical AND operator) \\ 
+	  	\hline 
+	  	TTYPE\_SEMI & ; (ends a statement such as assignment, if-else block etc.) \\ 
+	  	\hline 
+	  	TTYPE\_R\_B\_O & ( \\ 
+	  	\hline 
+	  	TTYPE\_R\_B\_C & ) \\ 
+	  	\hline 
+	  	TTYPE\_S\_B\_O & [ (used with arrays) \\ 
+	  	\hline 
+	  	TTYPE\_S\_B\_C & ] (used with arrays) \\ 
+	  	\hline 
+	  	TTYPE\_C\_B\_O & \{ (used for block statements) \\ 
+	  	\hline 
+	  	TTYPE\_C\_B\_C & \} (used for block statements) \\ 
+	  	\hline 
+	  	TTYPE\_KEYWORD & keyword (e.g. int, while, if, else etc.) \\ 
+	  	\hline 
+	  	TTYPE\_ARRAY & array (e.g. int[2] myArr) \\ 
+	  	\hline 
+	  	TTYPE\_EXISTING\_IDENTIFIER & identifier already previously detected \\ 
+	  	\hline 
+	  	TTYPE\_CONFIRMED\_IDENTIFIER & determines if a called identifier was previously defined or not \\ 
+	  	\hline
+	  	\end{tabular}
+	  	\label{tab:tokens}
+	  	\caption{Types of \textit{tokens}}
+	\end{table}
+  	
+  	\paragraph{}
+  	  State-wise there are two types of \textit{tokens} - single and composite. A single-\textit{state} \textit{token} is such a \textit{token} that is detected by a transition to a single \textit{state} in the \textit{FSM} (starting from the start-\textit{state}). As an example we can take a number: we start at the start-\textit{state} and the first digit changes the \textit{FSM}'s \textit{state} to a new one for detecing numbers. As long as the next character passed to the \textit{FSM} by the ring buffer is a digit we remain in the same \textit{state} and continue building a number. Once a non-numeric character is detect a numeric \textit{token} is created and the \textit{FSM}'s \textit{state} is again the start-\textit{state}. On the other hand the "not equal" sign \textit{\textless=\textgreater} is a composite-state token since it requires transition to multiple \textit{states}. Once a \textit{\textless} is detected the \textit{FSM} switches to a state that can either detect the \textit{\textless} as a sign on its own or detect it as a part of \textit{\textless=\textgreater} based on whether the next character being \textit{=} or something else. For composite-state tokens a special function is required called \textbf{back()} provided by the buffer along with the \textbf{nextChar()} function, which returns the next character. The \textbf{back()} function is essential for composite-\textit{state} \textit{tokens} because it allows to go backwards multiple characters in a buffer in a case when such a \textit{token} was on the way of being detected (e.g. \textit{\textless=}) but the \textit{FSM} didn't manage to because the next character was not what was expected in one of the composite \textit{states} (e.g. in case of \textit{\textless=} the next character is expected to be \textit{\textgreater}).
+  	  
+  	\paragraph{}
+  		There are several special situations concerning the reading buffers that need to be mentioned here. The first important aspect is the prevention of under- and overflows in the buffers when using \textbf{getChar()} or \textbf{back()}. If the buffer that is currently filled with characters is full, \textbf{getChar()} automatically invokes a hot swap of buffers so that the next free buffer is locked for writing new data to it from the input file. Going backwards on the other hand is more complicated since the number of characters we can go backwards is limited by the size of the history buffer, which is actually the previous current buffer. \textbf{back()} has a built-in protection mechanism for going backwards more than it is actually possible by returning a "\textbackslash 0" in case we try to invoke a buffer underflow. The other special situation is again concerning the \textbf{back()} function. Due to the nature of \textit{tokens} and the inability to distribute those on more than a single line \textbf{back()} has also a built-in functionality that simply hooks the pointer at the current character if we try to go backwards and more than one new lines are encountered.
+  	\paragraph{}
+  		In order to improve performance for most source files keywords are not handled by the \textit{FSM} and are initialized seperately before the tokenization has even started because these are constants that are always part of the languange unlike for example an identifier defined by the user or a bracket placed somewhere.
+  		
+	\section{Token management}
+	\paragraph{}
+		As stated before \textit{tokens} provide essential information to the \textit{parser}. However tokens might repeatedly appear in the input file and also need to be accessable in a way. This requires a management structure called \textit{symbol table}. Such a table is basically a hash table. Each \textit{token}'s information object also stores the hashcode for the \textit{lexem} that the \textit{token} represents. The currently used hash-function can be seen in \textit{Algorithm \ref{alg:hashing}}.\\
+		\begin{algorithm}[H]
+ 			\KwData{lexem : array of characters}
+ 			\KwResult{hashcode : unsigned int}
+ 			hashcode = 0\;
+ 			i = 0\;
+ 			\While{not at end of lexem}{
+  				hashcode += exp(2 * log((unsigned int) lexem[i] + 1)) + (unsigned int) lexem[i]\;
+  				i = i + 1\;
+ 			}
+ 			\label{alg:hashing}
+ 			\caption{Hash-function used when generating hashcode for a \textit{lexem}}
+		\end{algorithm}
+		Additional casting is required in order to interpret each character specifically as an unsigned integer. Collisions are resolved by using custom lists.
+		
+	\paragraph{}
+		Beside the hash-function used another important aspect of the \textit{symbol table} is its size. Each time a new \textit{token} is to be inserted in the table its fill status is checked. If it has reached a predefined percentage a new and larger one is created using the following formula:
+		\begin{equation}
+		  newSize = steps \cdot SYMTAB\_SIZE + size
+		\end{equation}
+		with \texttt{SYMTAB\_SIZE} being the initial size of the table, \texttt{steps} being an increasing factor (currently each resizing increases this parameter by 5) and \texttt{size} being the size of the current table that we need to resize.
+	\paragraph{}
+		In addition to resizing and hashing the \textit{symbol table} also supports searching for a \textit{lexem} that is to be inserted. Due to the nature of insertion in the table every time a new element is inserted a search is performed to see if the lexem isn't already there. This requires generating hashcode on the fly so the hash-function plays a crutial role.
+	\section{Error handling}
+	\paragraph{}
+		The \textit{scanner} also has some basic error handling such as checking if a numeric \textit{token}'s value is within the range of a long int, which is used to store all numeric values, and if a character is part of the language. The second is very strict exclusion rules broken only in case when a comment section is detected. Once the beginning of a comment is recognized by the \textit{FSM} all the ASCII characters that follow are only checked if they equal an asteriks. If an asteriks is detected followed by a closing round bracket the comment section is over and the same rules apply as before the comment was detected. The rest of the error handling is left to the \textit{parser}.

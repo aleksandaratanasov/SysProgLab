@@ -39,8 +39,10 @@
 \lstset{language=C++,inputencoding=utf8,basicstyle=\footnotesize,breaklines=true,breakatwhitespace=true,tabsize=8,numbers=left }
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
-\usepackage{fancyhdr}
- 
+\usepackage[]{algorithm2e}	%for algorithms
+\usepackage{titlesec}
+\titleformat{\chapter}[display]{\normalfont\bfseries}{}{0pt}{\Huge}
+\usepackage{fancyhdr} 
 \pagestyle{fancy}
 \fancyhf{}
 %\rfoot{ \thepage}
@@ -50,7 +52,7 @@
 \renewcommand{\familydefault}{\sfdefault}
 \hfuzz=15pt
 \setlength{\emergencystretch}{15pt}
-\hbadness=750
+\hbadness=1000
 \tolerance=750
 \begin{document}
 \hypersetup{pageanchor=false,citecolor=blue}
@@ -61,7 +63,7 @@
 \vspace*{1cm}
 {\large by Aleksandar Atanasov}\\
 \vspace*{0.5cm}
-{\small Tue Sep 23 2014 18:13:25}\\
+{\small Tue Sep 28 2014}\\
 \end{center}
 \end{titlepage}
 %\clearemptydoublepage
@@ -71,11 +73,15 @@
 \pagenumbering{arabic}
 \hypersetup{pageanchor=true,citecolor=blue}
 
+\lstset{language=C++}
 \include{introduction}
+%\let\clearpage\relax
 \include{scanner}
 \include{parser}
 \include{multithreading}
-\include{tools} % gcc, valgrind, qt creator, git
+\include{tools}
+\include{examples}
+\include{suggestions}
 
 \printindex
 \end{document}

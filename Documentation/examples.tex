@@ -1,0 +1,148 @@
+\chapter{Examples}
+%\addcontentsline{toc}{chapter}{Examples}
+\paragraph{}
+  This chapter gives a couple of examples that the user can test to see how the compiler performs on his/her platform.
+  
+	\section{Bubble sort}
+	\paragraph{}
+  		Sorting algorithms are an essential part of programming and bubble sort is the most simple (and also most inefficient) way to do it:
+    		\begin{lstlisting}[frame=single]
+ int[5] arr;
+ int i;
+ int j;
+ int temp;
+
+ (* array that needs to be sorted *)
+ arr[0] = 10;
+ arr[1] = -2;
+ arr[2] = 3;
+ arr[3] = 7;
+ arr[4] = 0;
+
+ (* display the unsorted array *)
+ i = 0;
+ while(i<5){
+   print(arr[i]);
+   i = i + 1;
+ };
+
+ i = 0;
+ while(i<5){
+   j = 0;
+   while(j<4){    
+     if(arr[j]>arr[j+1]){
+       temp = arr[j+1];
+       arr[j+1] = arr[j];
+       arr[j] = temp;
+     }
+     else
+       temp = 0;
+     j = j + 1;
+   };
+   i = i + 1;
+ };
+
+(* display the sorted array *)
+ i = 0;
+ while(i<5){
+   print(arr[i]);
+   i = i + 1;
+ };
+		\end{lstlisting}
+				
+	\paragraph{}
+	  	The code above can easily be expanded by allowing user interaction. By using the \textit{read()} statement in a loop the user will be able to enter whatever numeric values he/she wants to sort. The language's grammar however does not allow generation of an array of a user-defined size mostly because all declerations have to be placed at the beginning of the code. It was mostly used to test array access and nesting of conditional statements.
+	  
+	\section{Fibonacci numbers}
+	\paragraph{}
+	  A good way to test not only loops but the out of range error for numeric values that are too large to be stored inside a long int are the Fibonacci numbers. In the code below the first 45 of the series are displayed:
+	  \begin{lstlisting}[frame=single]
+ int i;
+ int j;
+ int c;
+ int n;
+ int count;
+ int d;
+ i = 0;
+ j = 1;
+ n = 45; (* first 45 numbers in the series *)
+ count = 0;
+ c = i+j;
+ print(i);
+ print(j);
+
+ while(count < n-2) {
+   d = j+c;
+   print(d);
+   j = c;
+   c = d;
+   count = count + 1;
+ };
+	  \end{lstlisting}
+	  
+	\section{Emulation of for-loop with post increment}
+	\paragraph{}
+		Each loop can be converted to the other types of loops. The while-loop that is provided by the language here allows a simple emulation of a for-loop with post increment:
+		\begin{lstlisting}[frame=single]
+ int i;
+ int[10] arr;
+
+ (* Emulation of the for(i=0; i<10; i++) statement *)
+ i = 0;
+ while (i < 10){
+   print(i);
+   arr[i] = i*10;
+   i = i + 1;
+ };
+		\end{lstlisting}
+	  
+	\section{Partial test of logical operators}
+	\paragraph{}
+		Due to the presence of conditional statements checking if the logical operators are working properly is very important. The code below offers a small portion of the test that was done while testing the compiler:
+	 	
+	 	\begin{lstlisting}[frame=single]
+ int a;
+ a = 10;
+ 
+ print(a);
+
+ if(a > 10)
+   print(1)
+ else
+   print(0);
+
+ if(a <=> 10)
+   print(1)
+ else
+   print(0);
+
+ if(a < 10)
+   print(1)
+ else
+   print(0);
+
+ if(!(a = 10))
+   print(1)
+ else
+   print(0);
+
+ if(!(a<=>10))
+   print(1)
+ else
+   print(0);
+
+ if((a < 100) & (a = 10))
+   print(1)
+ else
+   print(0);
+
+ if((a = 100) & (a = 10))
+   print(1)
+ else
+   print(0);
+
+ if((a = 10) & !(a < 5) & (a <=> 10))
+   print(1)
+ else
+   print(0);
+	 	\end{lstlisting}

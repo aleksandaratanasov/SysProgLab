@@ -1,0 +1,14 @@
+\chapter{Suggestions}
+%\addcontentsline{toc}{chapter}{Suggestions}
+\paragraph{}
+  Currently the compiler has a solid design and runs relatively fast. The test file provided by the professor with over 20 000 lines of code to be compiled was processed for 0.74 seconds. Following list outlines some things that may be improved and/or added:
+  \begin{description}
+  	\item[Adding the ability to declare variables not only at the beginning of the source code] - the current implementation can easily be altered to alow such feature however it is unknown if the interpreter is not the one imposing such a restriction
+  	\item[Adding support for functions] - function calls can be emulated by using an if-statement that is always true. Backing up the stack will require changes in the interpreter
+  	\item[Adding increment and decrement] - this feature only requires adding a couple of new rules to the grammar. Especially post-increment and decrement are very easy to implement
+  	\item[Symbol table] - although the current hash function seems to be working well there was insufficient research on choosing the optimal one. The algorithm for resizing the table can also be improved by doing basic analysis of the source code such as number of characters especially of spaces, tabulations and new lines. This will involve reading the whole file twice for filling the \textit{symbol table} but it will also allow better prediction of the appropriate size of the \textit{symbol table} thus reducing large copy and allocation operations later on, and also the memory footprint of the compiler
+  	\item[Adding multiple threads for both I/O operations] - the current multithreading model uses a single thread for reading and a single thread for writing. Multiple threads for both operations will increase the speed. However such a design will require the implementation of a synchronization routine between all threads responsible for one of the I/O operations
+  	\item[Increasing number of buffers] - although there is no prove so far increasing the number of buffers for both I/O operation may also lead to an increase in speed
+  	\item[Extension support for the \textit{FSM}] - the current \textit{FSM} does not support adding new states in case the grammar is extended. This is more of a nice-to-have feature and depends on several of the suggestions at the beginning of this list
+  	\item[Overall improvement of performance based on \textit{Valgrind}'s function analysis] - most changes involving the results displayed by \textit{Valgrind} when analysing the compiler involved handling various memory leaks. Little was done following the function run performance. Improving the code based on these statistics will probably improve the performance of the compiler.
+  \end{description}

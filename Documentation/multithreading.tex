@@ -1,5 +1,22 @@
 %\rhead{hskac}
 %\lhead{Multithreading}
 \chapter{Multithreading}
+%\addcontentsline{toc}{chapter}{Multithreading}
+\label{chapter:multithreading}
 \paragraph{}
-World
+	Part of the lab was to add multithreading support in order to speed up the compilation process. Due to the nature of the parsing process it is not plausible to add any multithreading support there since tokens are required to be worked on by the parser in a sequential order when building the \textit{AST}. One thing that can be changed is the reading from and writing to files. This required various changes in the design of both the input and output buffers. For this purpose the \textit{pthread} library was used. For specific information of the reading and writing buffers see \textit{Section \ref{sec:bufferin}} and \textit{Section \ref{sec:bufferout}}.
+	
+	\section{File access in a multithreaded environment}
+	\paragraph{}
+		There is a single most crutial aspect that needs to be taken into consideration here namely the locking mechanism required when accessing the data. I/O operations from each single thread have to be carefully synchronized with the main thread which runs the compiler. The main program should not be allowed to access a half full reading buffer or a half empty writing buffer.
+		
+	\section{Multithreaded buffering}
+	\label{sec:multibuff}
+	\paragraph{}
+		It was decided that a monitor-like model with mutexes is easy enough to be implemented yet offers the desired control. The usage of ring buffers proved to be crutial for this part of the lab. As mentioned before it provides an uninterrupted flow of data both in (reading a file) and out (writing to a file). Each buffer is encapsulated in a special \textit{BufferMonitor} object (one monitor-like object for all reading and one for all writing buffers) that allows controlled access via mutexes to the buffer's content.
+		
+	\paragraph{}
+		The constructor of each ring buffer initializes all buffers for the specific I/O operation, starts data flow in the buffer that will store the current content at the beginning, opens the file for reading/writing and runs a thread to handle the handling of data streams.
+		
+	\paragraph{}
+		The initial multithreading design simulated a sequential way of reading and writing where the reading of the input file was put on hold while the writing to the output file and vice versa. This was done in order to check if the threads are created and run properly. After this was verified the model described above was implemented.

@@ -1,24 +1,41 @@
 %\rhead{hskac}
 %\lhead{Tools}
 \chapter{Tools}
+%\addcontentsline{toc}{chapter}{Tools}
 \paragraph{}
-\section{G++}
-\paragraph{}
-	No additional parameters where added except the \textit{pthread} library upon linking. The produced executable is relatively small - approx. 240KB.
-\section{CMake}
-\paragraph{}
-	\textit{CMake} offers a more readable syntax and platform independence (it invokes however a platform-dependend tool to compile the code and generate an executable such as \textit{make}, \textit{Xcode} etc.) compared to \textit{make}. Initially \textit{make} was used (for more information see \textit{Section \ref{sec:qtcreator}}).
-\section{Git}
-	The proposed version source control system for the lab was SVN. It was not used due to the fact it was no longer available for me. \textit{Git} proved to be a valuable substitute and it took only a very short amount of time to learn the basic commands and how it works. Later on remote repository was established and local files were transferred to a private repository on \textbf{github}.
-\section{Valgrind}
-	\textit{Valgrind} is a tool used to analyse an application and detect memory leaks, function execution times etc. It helped greatly to remove various memory leaks and even lead to some design changes in order to optimize the performance of the compiler.
-\section{Qt Creator}
-\label{sec:qtcreator}
-\paragraph{}
-  At first the project was started using Eclipse with its plugin CDT that adds a feature-rich environment for C/C++ development. However following disadvantages were noticed and required a change in the editor that was used:
-\begin{description}
-\item[Performance] - the startup time and memory footprint of Qt Creator are much better than in Eclipse even when only CDT is used.
-\item[Setting up Git] - it was discovered that setting up a \textit{git} repository in Eclipse is much more complicated than in Qt Creator. After \textit{git init} has been executed in order to create a local \textit{git} repository and in addition a \textit{git remote} has been set so that code can be pushed to a remote repository (in this case \textbf{github} was used) everything just works directly from within Qt Creator. In Eclipse the user is forced to first install an additional plugin due to the fact that version source control is not part of the IDE by default and then go through various configurations in order to make it work. In Qt Creator more complex operations such as branching, switching between branches (\textit{git checkout}), merging etc. is very easy to accomplish.
-\item[CMake] - as mentioned previously the transfer of the project from Eclipse to Qt Creator required a change in the tool used for it. \textit{make} was still an option however it is not possible to use it from withing the editor. Qt Creator has not project integration for \textit{make} projects.
-\item[Multithreading] - this was the main reason why a swtich from Eclipse to Qt Creator was initiated. Non-stop debugging for multithreaded applications is turned on by default in Qt Creator and the user does not need to do any configuration whatsoever. A multithreaded applications in debug or run mode simply runs. Eclipse is very user-unfriendly in this aspect. Underneath the hull Qt Creator and also Eclipse use \textit{gdb}. Using the debugger from within the editor at least for basic operations is a valuable feature.
-\end{description}
+	Throughout the development process several tools were used.
+	\section{G++}
+	\paragraph{}
+		No additional parameters where added except the \textit{pthread} library upon linking. The produced executable is relatively small - approx. 240KB.
+	\section{CMake}
+	\paragraph{}
+		\textit{CMake} offers a more readable syntax and platform independence (it invokes however a platform-dependend tool to compile the code and generate an executable such as \textit{make}, \textit{Xcode} etc.) compared to \textit{make}. Initially \textit{make} was used (for more information see \textit{Section \ref{sec:qtcreator}}). Below the CMake file can be seen (adding compilation of the LaTeX documentation pending):
+		\begin{lstlisting}[frame=single]
+project(HskaCompiler)
+cmake_minimum_required(VERSION 2.8)
+find_package(Threads)
+# source and header files
+aux_source_directory(Container SRC_CONTAINER)
+aux_source_directory(IO SRC_IO)
+aux_source_directory(Scanner SRC_SCANNER)
+aux_source_directory(Parser SRC_PARSER)
+add_executable(${PROJECT_NAME} ${SRC_CONTAINER} ${SRC_IO} ${SRC_SCANNER} ${SRC_PARSER} main.cpp)
+target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
+		\end{lstlisting}
+	\section{Git}
+		The proposed version source control system for the lab was SVN. It was not used due to the fact it was no longer available for me. \textit{Git} proved to be a valuable substitute and it took only a very short amount of time to learn the basic commands and how it works. Later on remote repository was established and local files were transferred to a private repository on \textbf{github}.
+	\section{Valgrind}
+		\textit{Valgrind} is a tool used to analyse an application and detect memory leaks, function execution times etc. It helped greatly to remove various memory leaks and even lead to some design changes in order to optimize the performance of the compiler.
+	\section{Qt Creator}
+	\label{sec:qtcreator}
+	\paragraph{}
+		At first the project was started using Eclipse with its plugin CDT that adds a feature-rich environment for C/C++ development. However following disadvantages were noticed and required a change in the editor that was used:
+		\begin{description}
+			\item[Performance] - the startup time and memory footprint of Qt Creator are much better than in Eclipse even when only CDT is used.
+			\item[Setting up Git] - it was discovered that setting up a \textit{git} repository in Eclipse is much more complicated than in Qt Creator. After \textit{git init} has been executed in order to create a local \textit{git} repository and in addition a \textit{git remote} has been set so that code can be pushed to a remote repository (in this case \textbf{github} was used) everything just works directly from within Qt Creator. In Eclipse the user is forced to first install an additional plugin due to the fact that version source control is not part of the IDE by default and then go through various configurations in order to make it work. In Qt Creator more complex operations such as branching, switching between branches (\textit{git checkout}), merging etc. is very easy to accomplish.
+			\item[CMake] - as mentioned previously the transfer of the project from Eclipse to Qt Creator required a change in the tool used for it. \textit{make} was still an option however it is not possible to use it from withing the editor. Qt Creator has not project integration for \textit{make} projects.
+			\item[Multithreading] - this was the main reason why a swtich from Eclipse to Qt Creator was initiated. Non-stop debugging for multithreaded applications is turned on by default in Qt Creator and the user does not need to do any configuration whatsoever. A multithreaded applications in debug or run mode simply runs. Eclipse is very user-unfriendly in this aspect. Underneath the hull Qt Creator and also Eclipse use \textit{gdb}. Using the debugger from within the editor at least for basic operations is a valuable feature.
+		\end{description}
+	\section{Doxygen}
+	\paragraph{}
+		\textit{Doxygen} was used to generated a detailed documentation of the source code both in HTML and LaTeX format.
