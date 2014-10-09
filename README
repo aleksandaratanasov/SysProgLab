@@ -1,0 +1,45 @@
+SysProgLab
+==========
+
+Compiler for a very basic programming language - assignment in SysProg lab.
+
+Language's symbols defined as follows:
+
+digit ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+letter ::= A | B | C | ... | Z | a | b | ... | z
+sign :: = + | − | / | ∗ | < | > | = | <=> | ! | & | ; | ( | ) | { | } | [ | ]
+integer :: = digit digit∗
+identifier ::= letter ( letter | digit )∗
+keywords : print, read, int, if, else, while
+
+Language's grammar defined as follows (non-terminals are with capital letters, € = empty word):
+PROG ::= DECLS STATEMENTS
+DECLS ::= DECL ; DECLS | €
+DECL ::= int ARRAY identifier
+ARRAY ::= [ integer ] | €
+STATEMENTS ::= STATEMENT ; STATEMENTS | €
+STATEMENT ::= identifier INDEX = EXP | print(EXP) | read (identifier INDEX) | {STATEMENTS} |
+				 if(EXP) STATEMENT else STATEMENT | while(EXP) STATEMENT
+EXP ::= EXP2 OP_EXP
+EXP2 ::= ( EXP ) | identifier INDEX | integer | -EXP2 | !EXP2
+INDEX ::= [ EXP ] | €
+OP_EXP ::= OP EXP | €
+OP ::= + | - | * | / | < | > | = | <=> | &
+
+
+Interpreter requires the libsysprogSS2011.so file to be exported:
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:[path to library]
+
+Run the interpreter via following command:
+java -jar interpreter.jar | interpreter64.jar (for the 64bit version of the interpreter)
+
+Note
+===========
+The compiler produces code that can only be run by the interpreter's version uploaded here (summer term 2011)
+
+
+TODO
+===========
+1) Put parser's node classes in separate files like before to make the parser code more readable
+
+
